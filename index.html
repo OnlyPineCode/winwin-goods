@@ -1,0 +1,2087 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F2F2F7">
+<title>追星物料管理台</title>
+<style>
+/* ============ 主题变量 ============ */
+:root{
+  --bg:#F2F2F7; --bg-elev:#FFFFFF; --card:#FFFFFF;
+  --txt:#000000; --txt2:#8E8E93; --txt3:#C7C7CC;
+  --sep:rgba(60,60,67,.13); --fill:rgba(118,118,128,.12);
+  --nav:rgba(249,249,249,.80); --mask:rgba(0,0,0,.40);
+  --blue:#007AFF; --green:#34C759; --orange:#FF9500; --red:#FF3B30;
+  --purple:#AF52DE; --indigo:#5856D6; --teal:#30B0C7; --pink:#FF2D55;
+  --radius:14px;
+}
+html[data-theme="dark"]{
+  --bg:#000000; --bg-elev:#1C1C1E; --card:#1C1C1E;
+  --txt:#FFFFFF; --txt2:#8E8E93; --txt3:#48484A;
+  --sep:rgba(84,84,88,.60); --fill:rgba(118,118,128,.24);
+  --nav:rgba(30,30,32,.78); --mask:rgba(0,0,0,.60);
+  --blue:#0A84FF; --green:#30D158; --orange:#FF9F0A; --red:#FF453A;
+  --purple:#BF5AF2; --indigo:#5E5CE6; --teal:#40C8E0; --pink:#FF375F;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--txt);
+  font:400 16px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased; overscroll-behavior-y:none;
+}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button{border:0;background:none;cursor:pointer;padding:0}
+a{color:var(--blue);text-decoration:none}
+::-webkit-scrollbar{width:0;height:0}
+
+/* ============ 布局 ============ */
+#app{max-width:540px;margin:0 auto;min-height:100vh;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+.hd{
+  position:sticky;top:0;z-index:20;
+  background:var(--nav);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:.5px solid var(--sep);
+  padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;
+}
+.hd-row{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;min-height:34px}
+.hd h1{margin:0;font-size:32px;line-height:1.15;font-weight:700;letter-spacing:-.5px}
+.hd .sub{font-size:13px;color:var(--txt2);padding-bottom:5px;white-space:nowrap}
+.hd-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:4px;
+  height:32px;padding:0 12px;border-radius:16px;background:var(--fill);
+  font-size:15px;font-weight:600;color:var(--blue);flex:0 0 auto;
+}
+.hd-btn.plain{background:none;padding:0 4px}
+
+/* 搜索框 */
+.search{position:relative;margin-top:10px}
+.search svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);opacity:.42}
+.search input{
+  width:100%;height:36px;border:0;border-radius:10px;background:var(--fill);
+  padding:0 12px 0 32px;outline:none;font-size:16px;
+}
+.search input::placeholder{color:var(--txt2)}
+
+/* 横向滚动 chips */
+.chips{display:flex;gap:8px;overflow-x:auto;margin-top:10px;padding-bottom:2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;
+  height:30px;padding:0 12px;border-radius:15px;background:var(--fill);
+  font-size:14px;font-weight:500;color:var(--txt);white-space:nowrap;
+}
+.chip.on{background:var(--blue);color:#fff}
+.chip .cnt{opacity:.55;font-size:12px;font-weight:400}
+.chip.on .cnt{opacity:.8}
+
+/* 分段控件 */
+.seg{display:flex;background:var(--fill);border-radius:9px;padding:2px;margin-top:10px}
+.seg button{flex:1;height:30px;border-radius:7px;font-size:14px;font-weight:500;color:var(--txt)}
+.seg button.on{background:var(--bg-elev);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+
+/* 内容 */
+.content{padding:12px 16px 8px}
+.group{margin-bottom:22px}
+.group-head{display:flex;align-items:baseline;gap:8px;margin:0 4px 8px}
+.group-head .t{font-size:17px;font-weight:700;letter-spacing:-.2px}
+.group-head .t.muted{color:var(--txt2)}
+.group-head .n{font-size:13px;color:var(--txt2)}
+.group-head .rt{margin-left:auto;font-size:13px;color:var(--txt2);text-align:right}
+.act-sum{display:flex;align-items:center;gap:10px;margin:-2px 4px 10px}
+.act-sum .bar{flex:1;margin-top:0}
+.act-sum .pc{font-size:12px;color:var(--txt2);font-variant-numeric:tabular-nums;flex:0 0 auto}
+
+.rows{background:var(--card);border-radius:var(--radius)}
+.row{display:flex;align-items:center;gap:12px;padding:12px 14px;position:relative;width:100%;text-align:left}
+.row+.row::before{content:"";position:absolute;top:0;left:14px;right:0;height:.5px;background:var(--sep)}
+.row.press:active{background:var(--fill)}
+.row-main{flex:1;min-width:0}
+.row-title{font-size:16px;font-weight:600;letter-spacing:-.2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.row-sub{font-size:13px;color:var(--txt2);margin-top:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.row-right{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.chev{color:var(--txt3);flex:0 0 auto}
+.plan-main{display:flex;align-items:center;gap:12px;min-width:0;flex:1;text-align:left}
+
+/* 缩略图 */
+.thumb{
+  width:54px;height:54px;border-radius:11px;flex:0 0 auto;overflow:hidden;
+  background:var(--fill);display:flex;align-items:center;justify-content:center;
+  font-size:20px;font-weight:700;color:#fff;
+}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb.lg{width:96px;height:96px;border-radius:16px;font-size:34px}
+.thumb.sm{width:34px;height:34px;border-radius:9px;font-size:13px}
+.thumb.xs{width:26px;height:26px;border-radius:7px;font-size:11px}
+
+/* 药丸 */
+.pill{
+  display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px;
+  border-radius:11px;font-size:12px;font-weight:600;white-space:nowrap;
+}
+.pill .dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex:0 0 auto}
+button.pill:active{opacity:.75}
+.tag{
+  display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:6px;
+  background:var(--fill);font-size:12px;color:var(--txt2);white-space:nowrap;
+}
+.tag.plain{background:transparent;padding:0}
+
+/* 进度条 */
+.bar{height:6px;border-radius:3px;background:var(--fill);overflow:hidden;margin-top:7px}
+.bar>i{display:block;height:100%;border-radius:3px;background:var(--blue);transition:width .25s}
+.bar.done>i{background:var(--green)}
+.bar-row{display:flex;align-items:center;gap:8px;margin-top:6px}
+.bar-row .bar{flex:1;margin-top:0}
+.bar-row .pc{font-size:12px;color:var(--txt2);font-variant-numeric:tabular-nums;flex:0 0 auto;min-width:34px;text-align:right}
+
+/* 统计小卡 */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:16px}
+.stats.four{grid-template-columns:repeat(4,1fr)}
+.stats.three{grid-template-columns:repeat(3,1fr)}
+.stat{background:var(--card);border-radius:12px;padding:10px 4px;text-align:center}
+.stat b{display:block;font-size:18px;font-weight:700;letter-spacing:-.4px;line-height:1.2;font-variant-numeric:tabular-nums}
+.stat span{font-size:11px;color:var(--txt2);display:block;margin-top:3px}
+
+/* 步进器 */
+.stepper{display:inline-flex;align-items:center;background:var(--fill);border-radius:8px;overflow:hidden;flex:0 0 auto}
+.stepper button{width:30px;height:28px;font-size:17px;font-weight:600;color:var(--blue);display:flex;align-items:center;justify-content:center}
+.stepper button:active{background:var(--sep)}
+.stepper .v{min-width:34px;text-align:center;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* 互换行 */
+.ex-lines{display:flex;flex-direction:column;gap:5px;margin-top:7px}
+.ex-line{display:flex;align-items:baseline;gap:7px;font-size:14px;min-width:0}
+.ex-line .lbl{flex:0 0 auto;font-size:11px;font-weight:700;line-height:16px;padding:0 6px;border-radius:5px}
+.ex-line .nm{font-weight:500;min-width:0;word-break:break-all}
+.ex-foot{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:7px}
+.ex-foot .sum{margin-left:auto;font-size:12px;color:var(--txt2);font-variant-numeric:tabular-nums}
+.ex-foot .sum b{font-weight:600}
+
+/* 空状态 */
+.empty{padding:56px 24px;text-align:center;color:var(--txt2)}
+.empty .ico{font-size:40px;opacity:.35;margin-bottom:10px}
+.empty .t{font-size:16px;font-weight:600;color:var(--txt);margin-bottom:6px}
+.empty .d{font-size:13px;line-height:1.6}
+
+.btn{
+  height:44px;padding:0 20px;border-radius:12px;background:var(--blue);color:#fff;
+  font-size:16px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+}
+.btn:active{opacity:.8}
+.btn.ghost{background:var(--fill);color:var(--blue)}
+.btn.gray{background:var(--fill);color:var(--txt)}
+.btn.danger{background:var(--red);color:#fff}
+.btn.full{width:100%}
+.btn.sm{height:36px;font-size:15px;padding:0 14px;border-radius:10px}
+.btn[disabled]{opacity:.45}
+.btn-group{display:flex;gap:10px;margin-top:14px}
+.btn-group .btn{flex:1}
+
+/* ============ 底部标签栏 ============ */
+.tabbar-wrap{position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;justify-content:center;pointer-events:none}
+.tabbar{
+  width:100%;max-width:540px;pointer-events:auto;
+  background:var(--nav);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+  border-top:.5px solid var(--sep);
+  display:flex;padding-bottom:env(safe-area-inset-bottom);
+}
+.tabbar button{
+  flex:1;height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  color:var(--txt2);font-size:10px;font-weight:500;
+}
+.tabbar button.on{color:var(--blue)}
+.tabbar svg{width:25px;height:25px}
+
+/* ============ 底部弹层 ============ */
+#sheet-root{position:fixed;inset:0;z-index:100;display:none}
+#sheet-root.open{display:block}
+.mask{position:absolute;inset:0;background:var(--mask);opacity:0;transition:opacity .25s}
+#sheet-root.show .mask{opacity:1}
+.sheet{
+  position:absolute;left:50%;bottom:0;transform:translate(-50%,100%);
+  width:100%;max-width:540px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  background:var(--bg);border-radius:18px 18px 0 0;
+  transition:transform .32s cubic-bezier(.32,.72,0,1);
+  padding-bottom:calc(20px + env(safe-area-inset-bottom));
+}
+#sheet-root.show .sheet{transform:translate(-50%,0)}
+.sheet-hd{
+  position:sticky;top:0;z-index:5;background:var(--nav);
+  -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+  border-bottom:.5px solid var(--sep);
+  display:flex;align-items:center;gap:10px;padding:12px 16px;
+}
+.sheet-hd .ttl{flex:1;font-size:17px;font-weight:700;text-align:center;letter-spacing:-.2px}
+.sheet-hd button{font-size:16px;color:var(--blue);font-weight:500;min-width:44px;text-align:left}
+.sheet-hd button.rt{text-align:right;font-weight:600}
+.sheet-hd span.ph{min-width:44px}
+.grabber{width:36px;height:5px;border-radius:3px;background:var(--txt3);margin:8px auto 0;opacity:.6}
+.sheet-body{padding:16px}
+
+/* 表单 */
+.fieldset{background:var(--card);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+.field{display:flex;align-items:center;gap:12px;padding:11px 14px;position:relative;min-height:48px}
+.field+.field::before{content:"";position:absolute;top:0;left:14px;right:0;height:.5px;background:var(--sep)}
+.field label{width:84px;flex:0 0 auto;font-size:15px;color:var(--txt);font-weight:500}
+.field label.req::after{content:"*";color:var(--red);margin-left:2px}
+.field input,.field select,.field textarea{
+  flex:1;min-width:0;border:0;background:none;outline:none;font-size:16px;padding:0;
+  -webkit-appearance:none;appearance:none;
+}
+.field input::placeholder,.field textarea::placeholder{color:var(--txt3)}
+.field select{text-align:right;direction:ltr}
+.field .suffix{color:var(--txt2);font-size:14px;flex:0 0 auto}
+.field.col{flex-direction:column;align-items:stretch;gap:6px}
+.field.col label{width:auto}
+.field textarea{width:100%;resize:none;min-height:60px;line-height:1.5}
+.field .sel-arrow{color:var(--txt3);flex:0 0 auto;margin-left:-6px}
+.form-label{font-size:13px;color:var(--txt2);margin:0 4px 7px;font-weight:500}
+.form-label .hint{color:var(--txt3);font-weight:400}
+.pick-wrap{background:var(--card);border-radius:var(--radius);padding:12px 10px;margin-bottom:16px}
+.pick-wrap .pick-hd{font-size:13px;color:var(--txt2);margin:0 4px 8px;font-weight:500}
+
+.img-picker{
+  display:flex;align-items:center;gap:10px;padding:14px;background:var(--card);
+  border-radius:var(--radius);margin-bottom:16px;
+}
+.img-picker .ph{width:56px;height:56px;border-radius:12px;background:var(--fill);display:flex;align-items:center;justify-content:center;color:var(--txt2);font-size:24px;flex:0 0 auto}
+.img-picker .ph img{width:100%;height:100%;object-fit:cover;border-radius:12px;display:block}
+.img-picker .info{flex:1;min-width:0}
+.img-picker .l1{font-size:15px;font-weight:600}
+.img-picker .l2{font-size:12px;color:var(--txt2);margin-top:2px}
+
+.linebox{background:var(--card);border-radius:var(--radius);padding:6px 10px 12px;margin-bottom:16px}
+.linebox .lb-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 2px 4px}
+.linebox .lb-hd .lb-t{font-size:14px;font-weight:600}
+.linebox .add{font-size:14px;color:var(--blue);font-weight:500;flex:0 0 auto}
+.lrow{display:flex;align-items:center;gap:6px;margin-top:8px}
+.lrow select{
+  flex:1;min-width:0;height:38px;border-radius:9px;background:var(--fill);border:0;
+  padding:0 8px;font-size:14px;-webkit-appearance:none;appearance:none;text-align:left;
+}
+.lrow input[type=number]{
+  width:56px;height:38px;border-radius:9px;background:var(--fill);border:0;
+  text-align:center;font-size:15px;font-weight:600;outline:none;flex:0 0 auto;
+  -webkit-appearance:none;appearance:none;
+}
+.lrow input[type=number]::-webkit-outer-spin-button,
+.lrow input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.lrow .del{width:30px;height:30px;border-radius:50%;background:var(--fill);color:var(--red);font-size:17px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.lrow .txt{flex:1;min-width:0;height:38px;border-radius:9px;background:var(--fill);border:0;padding:0 10px;font-size:14px;outline:none}
+.lrow .imgbtn{
+  width:38px;height:38px;border-radius:9px;background:var(--fill);flex:0 0 auto;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;color:var(--txt2);font-size:16px;
+}
+.lrow .imgbtn img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* 详情 */
+.detail-hero{display:flex;gap:14px;align-items:flex-start;padding:0 0 16px}
+.detail-hero .meta{flex:1;min-width:0}
+.detail-hero .nm{font-size:20px;font-weight:700;letter-spacing:-.3px;line-height:1.25}
+.detail-hero .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.kv{display:flex;justify-content:space-between;gap:14px;padding:11px 14px;font-size:15px;position:relative;align-items:center}
+.kv+.kv::before{content:"";position:absolute;top:0;left:14px;right:0;height:.5px;background:var(--sep)}
+.kv .k{color:var(--txt2);flex:0 0 auto;display:flex;align-items:center}
+.kv .v{text-align:right;font-weight:500;word-break:break-word}
+.rx-imgs{display:flex;gap:8px;flex-wrap:wrap;padding:10px 14px}
+.rx-imgs img{width:64px;height:64px;border-radius:10px;object-fit:cover}
+
+/* 表格（统计） */
+.tbl{background:var(--card);border-radius:var(--radius);overflow:hidden;font-size:14px}
+.tbl .tr{display:flex;align-items:center;gap:8px;padding:10px 12px;position:relative}
+.tbl .tr+.tr::before{content:"";position:absolute;top:0;left:12px;right:12px;height:.5px;background:var(--sep)}
+.tbl .tr.head{background:var(--fill);font-size:12px;color:var(--txt2);font-weight:600}
+.tbl .c1{flex:1;min-width:0;display:flex;align-items:center;gap:8px}
+.tbl .c1 .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tbl .c2,.tbl .c3,.tbl .c4{width:44px;text-align:right;font-variant-numeric:tabular-nums;flex:0 0 auto}
+.tbl .c4{width:52px;font-weight:600}
+
+/* 设置 */
+.setnote{font-size:12px;color:var(--txt2);line-height:1.6;margin:8px 4px 0}
+.setnote b{color:var(--txt)}
+.setnote code{background:var(--fill);padding:1px 5px;border-radius:4px;font-size:11px;font-family:ui-monospace,Menlo,monospace}
+.swatch{width:26px;height:26px;border-radius:50%;flex:0 0 auto;border:2px solid var(--bg-elev);box-shadow:0 0 0 .5px var(--sep)}
+.pal{display:flex;gap:12px;flex-wrap:wrap;padding:6px 2px 2px}
+.pal button{width:34px;height:34px;border-radius:50%;position:relative}
+.pal button.on::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700}
+
+/* 弹窗 */
+#dialog-root{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:32px}
+#dialog-root.open{display:flex}
+#dialog-root .mask{opacity:1}
+.dlg{
+  position:relative;width:100%;max-width:280px;background:var(--bg-elev);border-radius:14px;
+  overflow:hidden;text-align:center;transform:scale(1.14);opacity:0;transition:all .2s;
+}
+#dialog-root.show .dlg{transform:scale(1);opacity:1}
+.dlg .dt{padding:19px 16px 15px;font-size:17px;font-weight:600}
+.dlg .dm{padding:0 16px 18px;font-size:13px;color:var(--txt2);line-height:1.5;margin-top:-8px}
+.dlg .da{display:flex;border-top:.5px solid var(--sep)}
+.dlg .da button{flex:1;height:44px;font-size:17px;color:var(--blue)}
+.dlg .da button+button{border-left:.5px solid var(--sep)}
+.dlg .da button.strong{font-weight:600}
+.dlg .da button.danger{color:var(--red)}
+
+/* toast */
+#toast{
+  position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translate(-50%,20px);
+  background:rgba(0,0,0,.84);color:#fff;padding:10px 18px;border-radius:20px;font-size:14px;font-weight:500;
+  z-index:300;opacity:0;transition:all .25s;pointer-events:none;max-width:80vw;text-align:center;
+}
+html[data-theme="dark"] #toast{background:rgba(255,255,255,.92);color:#000}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="view"></div>
+</div>
+<div class="tabbar-wrap">
+  <nav class="tabbar" id="tabbar"></nav>
+</div>
+<div id="sheet-root"><div class="mask" data-act="closeSheet"></div><div class="sheet" id="sheet"></div></div>
+<div id="dialog-root"><div class="mask" data-act="closeDialog"></div><div class="dlg" id="dialog"></div></div>
+<div id="toast"></div>
+
+<script>
+/* =========================================================
+   追星物料管理台  v2.0
+   物料库 / 企划制作 / 互换记录 + 设置
+   ========================================================= */
+
+/* ---------- 常量 ---------- */
+const DEFAULT_CATEGORIES = ['手幅','小卡','贴纸','亚克力','徽章','扇子','手绳','帆布袋','玩偶','立牌','明信片','挂件','文件夹','其他'];
+const DEFAULT_STATUSES = [
+  {k:'企划中', c:'#8E8E93'},
+  {k:'设计中', c:'#AF52DE'},
+  {k:'打样中', c:'#FF9500'},
+  {k:'制作中', c:'#007AFF'},
+  {k:'待收货', c:'#5856D6'},
+  {k:'已完成', c:'#34C759'},
+  {k:'暂停',   c:'#FF3B30'},
+];
+const EX_STATUS = [
+  {k:'待面交', c:'#FF9500'},
+  {k:'待寄出', c:'#007AFF'},
+  {k:'已完成', c:'#34C759'},
+];
+const ACT_TYPES = ['演唱会','见面会','签售会','生日应援','线下展台','投递应援','其他'];
+const CUSTOM = '__custom__';
+const PALETTE = ['#8E8E93','#AF52DE','#FF9500','#007AFF','#5856D6','#34C759','#FF3B30','#30B0C7','#FF2D55','#A2845E'];
+
+/* ---------- 工具 ---------- */
+const $ = s => document.querySelector(s);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const num = v => { const n = Number(v); return isFinite(n) ? n : 0; };
+function tint(hex, a){
+  const h = String(hex || '#8E8E93').replace('#','');
+  const full = h.length === 3 ? h.split('').map(c=>c+c).join('') : h;
+  const n = parseInt(full, 16);
+  if (!isFinite(n)) return 'rgba(142,142,147,' + a + ')';
+  return 'rgba(' + (n>>16&255) + ',' + (n>>8&255) + ',' + (n&255) + ',' + a + ')';
+}
+function pigment(str){
+  let h = 0; str = String(str||'?');
+  for (let i=0;i<str.length;i++) h = (h*31 + str.charCodeAt(i)) >>> 0;
+  return PALETTE[h % PALETTE.length];
+}
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function fmtDate(s){
+  if (!s) return '';
+  const p = String(s).split('-');
+  return p.length === 3 ? (Number(p[1]) + '月' + Number(p[2]) + '日') : s;
+}
+function fmtTime(ts){
+  if (!ts) return '从未';
+  const d = new Date(ts);
+  return (d.getMonth()+1) + '月' + d.getDate() + '日 ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 1900);
+}
+function statusColor(k, list){ const f = (list||[]).find(x => x.k === k); return f ? f.c : '#8E8E93'; }
+function pill(k, list){
+  const c = statusColor(k, list);
+  return '<span class="pill" style="color:'+c+';background:'+tint(c,.15)+'"><i class="dot"></i>'+esc(k)+'</span>';
+}
+function pillBtn(act, id, k, list){
+  const c = statusColor(k, list);
+  return '<button class="pill" data-act="'+act+'" data-id="'+id+'" style="color:'+c+';background:'+tint(c,.15)+'"><i class="dot"></i>'+esc(k)+'</button>';
+}
+function tagsHTML(arr){
+  if (!arr || !arr.length) return '';
+  return arr.map(t => '<span class="tag">#'+esc(t)+'</span>').join('');
+}
+
+/* ---------- 存储层 ---------- */
+const Store = (() => {
+  const KEY = 'starmerch.v2';
+  const DB_NAME = 'starmerch_db';
+  let dbp = null;
+  function openDB(){
+    if (dbp) return dbp;
+    dbp = new Promise((res, rej) => {
+      if (!('indexedDB' in window)) return rej(new Error('no idb'));
+      const r = indexedDB.open(DB_NAME, 1);
+      r.onupgradeneeded = () => { if (!r.result.objectStoreNames.contains('kv')) r.result.createObjectStore('kv'); };
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    });
+    return dbp;
+  }
+  return {
+    async get(){
+      try {
+        const db = await openDB();
+        return await new Promise((res, rej) => {
+          const q = db.transaction('kv','readonly').objectStore('kv').get(KEY);
+          q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error);
+        });
+      } catch(e){
+        try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch(_) { return null; }
+      }
+    },
+    async set(v){
+      try {
+        const db = await openDB();
+        return await new Promise((res, rej) => {
+          const q = db.transaction('kv','readwrite').objectStore('kv').put(v, KEY);
+          q.onsuccess = () => res(); q.onerror = () => rej(q.error);
+        });
+      } catch(e){
+        try { localStorage.setItem(KEY, JSON.stringify(v)); } catch(_) { toast('本地存储已满，建议压缩图片或清理数据'); }
+      }
+    }
+  };
+})();
+
+/* ---------- 应用状态 ---------- */
+let DB = { version:2, activities:[], items:[], exchanges:[], categories:[], statuses:[] };
+
+const ui = {
+  tab: 'library',
+  lib: { q:'', act:'all', cat:'all', tag:'all', group:'activity' },
+  plan:{ act:'all', status:'all', cat:'all', q:'', group:'activity' },
+  ex:  { group:'activity', q:'', act:'all', status:'all', tag:'all' },
+  actExpand:false,
+  gh:  { token:'', repo:'', branch:'main', path:'backup/starmerch-backup.json', last:'' },
+  theme:'auto',
+};
+
+let draft = null;
+let rxTarget = -1;
+let saveTimer = null;
+function save(now){
+  clearTimeout(saveTimer);
+  const run = () => Store.set(JSON.parse(JSON.stringify(DB)));
+  if (now) return run();
+  saveTimer = setTimeout(run, 260);
+}
+
+/* ---------- 查询辅助 ---------- */
+function normalize(){
+  if (!Array.isArray(DB.categories) || !DB.categories.length) DB.categories = DEFAULT_CATEGORIES.slice();
+  if (!Array.isArray(DB.statuses) || !DB.statuses.length) DB.statuses = JSON.parse(JSON.stringify(DEFAULT_STATUSES));
+  DB.items.forEach(i => {
+    if (!Array.isArray(i.activityIds)) i.activityIds = i.activityId ? [i.activityId] : [];
+    delete i.activityId;
+    i.activityIds = (i.activityIds || []).filter(x => !!actRaw(x));
+    if (!DB.statuses.some(s => s.k === i.status)) i.status = DB.statuses[0].k;
+    if (i.category && !DB.categories.includes(i.category)) DB.categories.push(i.category);
+  });
+  DB.exchanges.forEach(e => {
+    if (!EX_STATUS.some(s => s.k === e.status)) e.status = '待寄出';
+    e.give = (e.give || []).map(l => ({ itemId:l.itemId || '', qty:num(l.qty) })).filter(l => l.itemId && l.qty > 0);
+    e.receive = (e.receive || []).map(l => ({ name:(l.name || '').trim(), qty:num(l.qty), image:l.image || '' }))
+                                 .filter(l => l.name && l.qty > 0);
+  });
+}
+const actRaw = id => DB.activities.find(a => a.id === id);
+const actName = id => { const a = actRaw(id); return a ? a.name : ''; };
+const itemById = id => DB.items.find(x => x.id === id);
+const actsOf = it => (it && it.activityIds) ? it.activityIds.filter(x => !!actRaw(x)) : [];
+const actOrder = id => { const i = DB.activities.findIndex(x => x.id === id); return i < 0 ? 9999 : i; };
+function sortActs(list){ return list.slice().sort((a,b) => actOrder(a.id) - actOrder(b.id)); }
+function allTags(obj){
+  const s = new Set();
+  obj.forEach(x => (x.tags || []).forEach(t => t && s.add(t)));
+  return Array.from(s);
+}
+function exchangeFlow(){
+  const m = {};
+  const bump = (key, field, qty) => {
+    if (!key) return;
+    if (!m[key]) m[key] = { out:0, in:0 };
+    m[key][field] += num(qty);
+  };
+  DB.exchanges.forEach(e => {
+    (e.give || []).forEach(l => bump(l.itemId, 'out', l.qty));
+    (e.receive || []).forEach(l => bump('custom:' + (l.name || '').trim(), 'in', l.qty));
+  });
+  return m;
+}
+const flowOf = (flow, id) => flow[id] || { out:0, in:0 };
+function availOf(it, flow){
+  const f = flowOf(flow, it.id);
+  return Math.max(0, num(it.madeQty) - f.out + f.in + num(it.stockAdj));
+}
+const sumQty = (e, side) => (e[side] || []).reduce((s,l) => s + num(l.qty), 0);
+
+/* =========================================================
+   渲染
+   ========================================================= */
+function render(keepScroll){
+  document.querySelectorAll('.tabbar button').forEach(b => b.classList.toggle('on', b.dataset.tab === ui.tab));
+  const y = window.scrollY;
+  const v = $('#view');
+  if (ui.tab === 'library') v.innerHTML = viewLibrary();
+  else if (ui.tab === 'plan') v.innerHTML = viewPlan();
+  else if (ui.tab === 'exchange') v.innerHTML = viewExchange();
+  else v.innerHTML = viewSettings();
+  if (keepScroll) window.scrollTo(0, y); else window.scrollTo(0, 0);
+}
+
+function tabbarHTML(){
+  const T = [
+    {k:'library', n:'物料库', p:'M4 5.5h6v6H4zM14 5.5h6v6h-6zM4 14.5h6v5H4zM14 14.5h6v5h-6z'},
+    {k:'plan',    n:'企划制作', p:'M9.5 6H20M9.5 12H20M9.5 18H20M4 6l.9 1L7 5M4 12l.9 1L7 11M4 18l.9 1L7 17'},
+    {k:'exchange',n:'互换', p:'M4 8h13l-3.2-3.2M20 16H7l3.2 3.2'},
+    {k:'settings',n:'设置', p:'M12 15a3 3 0 100-6 3 3 0 000 6zM19.1 14.6a1.6 1.6 0 00.3 1.8l.1.1a1.9 1.9 0 11-2.7 2.7l-.1-.1a1.6 1.6 0 00-1.8-.3 1.6 1.6 0 00-1 1.5v.2a1.9 1.9 0 11-3.8 0v-.1a1.6 1.6 0 00-1-1.5 1.6 1.6 0 00-1.8.3l-.1.1a1.9 1.9 0 11-2.7-2.7l.1-.1a1.6 1.6 0 00.3-1.8 1.6 1.6 0 00-1.5-1H3a1.9 1.9 0 110-3.8h.1a1.6 1.6 0 001.5-1 1.6 1.6 0 00-.3-1.8l-.1-.1a1.9 1.9 0 112.7-2.7l.1.1a1.6 1.6 0 001.8.3h.1a1.6 1.6 0 001-1.5V3a1.9 1.9 0 113.8 0v.1a1.6 1.6 0 001 1.5 1.6 1.6 0 001.8-.3l.1-.1a1.9 1.9 0 112.7 2.7l-.1.1a1.6 1.6 0 00-.3 1.8v.1a1.6 1.6 0 001.5 1h.2a1.9 1.9 0 110 3.8h-.1a1.6 1.6 0 00-1.5 1z'},
+  ];
+  return T.map(t => '<button data-tab="'+t.k+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="'+t.p+'"/></svg><span>'+t.n+'</span></button>').join('');
+}
+
+/* ---------- Tab1 物料库 ---------- */
+function viewLibrary(){
+  const q = ui.lib.q.trim().toLowerCase();
+  const flow = exchangeFlow();
+  let list = DB.items.slice();
+
+  if (ui.lib.act !== 'all') list = list.filter(i => ui.lib.act === 'none' ? !actsOf(i).length : actsOf(i).includes(ui.lib.act));
+  if (ui.lib.cat !== 'all') list = list.filter(i => (i.category || '未分类') === ui.lib.cat);
+  if (ui.lib.tag !== 'all') list = list.filter(i => (i.tags || []).includes(ui.lib.tag));
+  if (q) list = list.filter(i => ((i.name||'') + (i.tags||[]).join(' ') + (i.note||'') + (i.category||'')).toLowerCase().includes(q));
+
+  const totalPlan = list.reduce((s,i) => s + num(i.planQty), 0);
+  const totalMade = list.reduce((s,i) => s + num(i.madeQty), 0);
+  const todo = Math.max(0, totalPlan - totalMade);
+  let rest = 0;
+  list.forEach(i => { rest += availOf(i, flow); });
+
+  let html = '';
+  if (ui.lib.group === 'none'){
+    html = list.length ? '<div class="group">' + rowsItems(list, flow) + '</div>' : '';
+  } else {
+    const secs = [];
+    if (ui.lib.group === 'activity'){
+      sortActs(DB.activities).forEach(a => {
+        const its = list.filter(i => actsOf(i).includes(a.id));
+        if (its.length) secs.push({ name:a.name, items:its });
+      });
+      const noAct = list.filter(i => !actsOf(i).length);
+      if (noAct.length) secs.push({ name:'未挂活动', items:noAct, muted:true });
+    } else {
+      const map = new Map();
+      list.forEach(i => {
+        const k = i.category || '未分类';
+        if (!map.has(k)) map.set(k, []);
+        map.get(k).push(i);
+      });
+      map.forEach((its, k) => secs.push({ name:k, items:its }));
+    }
+    if (!list.length && DB.items.length) html = emptyState('没有匹配的物料','试试换个筛选条件或关键词。','','');
+    secs.forEach(sec => {
+      const p = sec.items.reduce((s,i) => s + num(i.planQty), 0);
+      const m = sec.items.reduce((s,i) => s + num(i.madeQty), 0);
+      const td = Math.max(0, p - m);
+      html += '<div class="group"><div class="group-head"><span class="t'+(sec.muted?' muted':'')+'">'+esc(sec.name)+'</span>'
+        + '<span class="n">'+sec.items.length+' 件</span>'
+        + '<span class="rt">待做 '+td+' · 已做 '+m+' / 计划 '+p+'</span></div>'
+        + rowsItems(sec.items, flow) + '</div>';
+    });
+  }
+
+  const actChips = sortActs(DB.activities).map(a =>
+    '<button class="chip'+(ui.lib.act===a.id?' on':'')+'" data-act="lib-act" data-v="'+a.id+'">'+esc(a.name)
+    + '<span class="cnt">'+DB.items.filter(i => actsOf(i).includes(a.id)).length+'</span></button>'
+  ).join('');
+  const catSet = new Set(DB.categories);
+  DB.items.forEach(i => { if (i.category) catSet.add(i.category); });
+  const catChips = Array.from(catSet).map(c =>
+    '<button class="chip'+(ui.lib.cat===c?' on':'')+'" data-act="lib-cat" data-v="'+esc(c)+'">'+esc(c)+'</button>'
+  ).join('');
+  const tagChips = allTags(DB.items).map(t =>
+    '<button class="chip'+(ui.lib.tag===t?' on':'')+'" data-act="lib-tag" data-v="'+esc(t)+'">#'+esc(t)+'</button>'
+  ).join('');
+
+  return ''
+  + '<div class="hd">'
+  +   '<div class="hd-row"><h1>物料库</h1>'
+  +     '<button class="hd-btn" data-act="lib-new">＋ 新增</button></div>'
+  +   '<div class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>'
+  +     '<input type="search" placeholder="搜索物料名 / 标签 / 备注" value="'+esc(ui.lib.q)+'" data-input="lib-q"></div>'
+  +   '<div class="seg">'
+  +     '<button class="'+(ui.lib.group==='activity'?'on':'')+'" data-act="lib-group" data-v="activity">按活动</button>'
+  +     '<button class="'+(ui.lib.group==='category'?'on':'')+'" data-act="lib-group" data-v="category">按类别</button>'
+  +     '<button class="'+(ui.lib.group==='none'?'on':'')+'" data-act="lib-group" data-v="none">全部</button>'
+  +   '</div>'
+  +   '<div class="chips">'
+  +     '<button class="chip'+(ui.lib.act==='all'?' on':'')+'" data-act="lib-act" data-v="all">全部活动</button>'
+  +     actChips
+  +     '<button class="chip'+(ui.lib.act==='none'?' on':'')+'" data-act="lib-act" data-v="none">未挂活动</button>'
+  +   '</div>'
+  +   '<div class="chips">'
+  +     '<button class="chip'+(ui.lib.cat==='all'?' on':'')+'" data-act="lib-cat" data-v="all">全部类别</button>' + catChips
+  +   '</div>'
+  +   '<div class="chips">'
+  +     '<button class="chip'+(ui.lib.tag==='all'?' on':'')+'" data-act="lib-tag" data-v="all">全部标签</button>' + tagChips
+  +   '</div>'
+  + '</div>'
+  + '<div class="content">'
+  +   '<div class="stats">'
+  +     '<div class="stat"><b>'+list.length+'</b><span>物料种类</span></div>'
+  +     '<div class="stat"><b>'+todo+'</b><span>待做</span></div>'
+  +     '<div class="stat"><b>'+totalMade+'</b><span>已制作</span></div>'
+  +     '<div class="stat"><b>'+totalPlan+'</b><span>计划</span></div>'
+  +     '<div class="stat"><b style="color:var(--blue)">'+rest+'</b><span>可用余量</span></div>'
+  +   '</div>'
+  +   (html || (DB.items.length ? '' : emptyState('还没有物料','点右上角「＋ 新增」创建第一件物料，\n上传图片、设置计划数量，之后在「企划制作」里推进进度。','新建物料','lib-new')))
+  + '</div>';
+}
+
+function rowsItems(list, flow){
+  if (!list.length) return '';
+  return '<div class="rows">' + list.map(i => {
+    const f = flowOf(flow, i.id);
+    const rest = availOf(i, flow);
+    const plan = num(i.planQty), made = num(i.madeQty);
+    const todo = Math.max(0, plan - made);
+    const sc = statusColor(i.status, DB.statuses);
+    const actTags = ui.lib.group === 'activity' ? '' : actsOf(i).map(a => '<span class="tag">'+esc(actName(a))+'</span>').join('');
+    return '<button class="row press" data-act="open-item" data-id="'+i.id+'">'
+      + thumbHTML(i, '')
+      + '<div class="row-main">'
+      +   '<div class="row-title">'+esc(i.name||'未命名')+'</div>'
+      +   '<div class="row-sub">'+(i.category?'<span>'+esc(i.category)+'</span>':'')
+      +     (plan ? '<span>计划 '+plan+'</span>' : '')
+      +     (todo ? '<span>待做 '+todo+'</span>' : '')
+      +     '<span>已做 '+made+'</span>'
+      +     '<span style="color:var(--blue);font-weight:600">余量 '+rest+'</span>'
+      +     (f.out ? '<span style="color:var(--orange)">换出 '+f.out+'</span>' : '')
+      +     (f.in ? '<span style="color:var(--blue)">换入 '+f.in+'</span>' : '')
+      +   '</div>'
+      +   (((i.tags||[]).length || actTags) ? '<div class="row-sub" style="margin-top:5px">'+tagsHTML(i.tags)+actTags+'</div>' : '')
+      +   (plan>0 ? '<div class="bar'+(made>=plan?' done':'')+'"><i style="width:'+Math.min(100,Math.round(made/plan*100))+'%"></i></div>' : '')
+      + '</div>'
+      + '<div class="row-right"><span class="pill" style="color:'+sc+';background:'+tint(sc,.15)+'"><i class="dot"></i>'+esc(i.status||'')+'</span></div>'
+      + '<svg class="chev" width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1.5 1.5L6 6.5l-4.5 5"/></svg>'
+      + '</button>';
+  }).join('') + '</div>';
+}
+
+function thumbHTML(it, cls){
+  if (it.image) return '<div class="thumb '+cls+'"><img src="'+it.image+'" alt=""></div>';
+  const ch = (it.name||'?').trim().charAt(0);
+  return '<div class="thumb '+cls+'" style="background:'+pigment(it.name)+'">'+esc(ch)+'</div>';
+}
+
+/* ---------- Tab2 企划制作 ---------- */
+function viewPlan(){
+  const flow = exchangeFlow();
+  const q = ui.plan.q.trim().toLowerCase();
+  let list = DB.items.slice();
+  if (ui.plan.act !== 'all') list = list.filter(i => actsOf(i).includes(ui.plan.act));
+  if (ui.plan.cat !== 'all') list = list.filter(i => (i.category || '未分类') === ui.plan.cat);
+  if (ui.plan.status !== 'all') list = list.filter(i => (i.status||'') === ui.plan.status);
+  if (q) list = list.filter(i => ((i.name||'') + (i.tags||[]).join(' ') + (i.note||'') + (i.category||'')).toLowerCase().includes(q));
+
+  const actChips = sortActs(DB.activities).map(a =>
+    '<button class="chip'+(ui.plan.act===a.id?' on':'')+'" data-act="plan-act" data-v="'+a.id+'">'+esc(a.name)
+    + '<span class="cnt">'+DB.items.filter(i => actsOf(i).includes(a.id)).length+'</span></button>'
+  ).join('');
+  const catSet = new Set(DB.categories);
+  DB.items.forEach(i => { if (i.category) catSet.add(i.category); });
+  const catChips = Array.from(catSet).map(c =>
+    '<button class="chip'+(ui.plan.cat===c?' on':'')+'" data-act="plan-cat" data-v="'+esc(c)+'">'+esc(c)+'</button>'
+  ).join('');
+  const stChips = DB.statuses.map(s =>
+    '<button class="chip'+(ui.plan.status===s.k?' on':'')+'" data-act="plan-status" data-v="'+esc(s.k)+'">'+esc(s.k)+'</button>'
+  ).join('');
+
+  let body = '';
+  if (!list.length){
+    body = DB.items.length
+      ? emptyState('没有匹配的物料','换个活动、状态或关键词筛选看看。','','')
+      : emptyState('还没有制作企划','先在「物料库」里创建物料，\n设置计划数量后，这里会按活动汇总制作进度。','去物料库','go-library');
+  } else {
+    const secs = [];
+    if (ui.plan.act !== 'all'){
+      secs.push({ name: actName(ui.plan.act) || '未挂活动', items:list, muted: !actRaw(ui.plan.act) });
+    } else if (ui.plan.group === 'none'){
+      secs.push({ name:'全部物料', items:list });
+    } else {
+      sortActs(DB.activities).forEach(a => {
+        const its = list.filter(i => actsOf(i).includes(a.id));
+        if (its.length) secs.push({ name:a.name, items:its });
+      });
+      const noAct = list.filter(i => !actsOf(i).length);
+      if (noAct.length) secs.push({ name:'未挂活动', items:noAct, muted:true });
+    }
+    body = secs.map(sec => {
+      const p = sec.items.reduce((s,i) => s + num(i.planQty), 0);
+      const m = sec.items.reduce((s,i) => s + num(i.madeQty), 0);
+      const td = Math.max(0, p - m);
+      const pct = p ? Math.round(m / p * 100) : 0;
+      return '<div class="group">'
+        + '<div class="group-head"><span class="t'+(sec.muted?' muted':'')+'">'+esc(sec.name)+'</span>'
+        + '<span class="n">'+sec.items.length+' 种</span>'
+        + '<span class="rt">待做 '+td+' · '+m+'/'+p+'</span></div>'
+        + '<div class="act-sum"><div class="bar'+(pct>=100?' done':'')+'" style="margin-top:0"><i style="width:'+pct+'%"></i></div><span class="pc">'+pct+'%</span></div>'
+        + planCards(sec.items, flow) + '</div>';
+    }).join('');
+  }
+
+  return ''
+  + '<div class="hd">'
+  +   '<div class="hd-row"><h1>企划制作</h1>'
+  +     '<button class="hd-btn" data-act="lib-new">＋ 新增</button></div>'
+  +   '<div class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>'
+  +     '<input type="search" placeholder="搜索物料名 / 标签 / 备注" value="'+esc(ui.plan.q)+'" data-input="plan-q"></div>'
+  +   '<div class="seg">'
+  +     '<button class="'+(ui.plan.group!=='none'?'on':'')+'" data-act="plan-group" data-v="activity">按活动</button>'
+  +     '<button class="'+(ui.plan.group==='none'?'on':'')+'" data-act="plan-group" data-v="none">全部</button>'
+  +   '</div>'
+  +   '<div class="chips">'
+  +     '<button class="chip'+(ui.plan.act==='all'?' on':'')+'" data-act="plan-act" data-v="all">全部活动</button>' + actChips
+  +   '</div>'
+  +   '<div class="chips">'
+  +     '<button class="chip'+(ui.plan.cat==='all'?' on':'')+'" data-act="plan-cat" data-v="all">全部类别</button>' + catChips
+  +   '</div>'
+  +   '<div class="chips">'
+  +     '<button class="chip'+(ui.plan.status==='all'?' on':'')+'" data-act="plan-status" data-v="all">全部状态</button>' + stChips
+  +   '</div>'
+  + '</div>'
+  + '<div class="content">' + body + '</div>';
+}
+
+function planCards(list, flow){
+  return '<div class="rows">' + list.map(i => {
+    const plan = num(i.planQty), made = num(i.madeQty);
+    const todo = Math.max(0, plan - made);
+    const pct = plan ? Math.min(100, Math.round(made / plan * 100)) : 0;
+    const f = flowOf(flow, i.id);
+    const rest = availOf(i, flow);
+    const sub = (i.category ? '<span>'+esc(i.category)+'</span>' : '')
+      + (plan ? '<span>计划 '+plan+'</span>' : '')
+      + (todo ? '<span>待做 '+todo+'</span>' : '')
+      + '<span>已做 '+made+'</span>'
+      + '<span style="color:var(--blue);font-weight:600">余量 '+rest+'</span>'
+      + (f.out ? '<span style="color:var(--orange)">换出 '+f.out+'</span>' : '');
+    return '<div class="row">'
+      + '<button class="plan-main" data-act="open-item" data-id="'+i.id+'">'
+      +   thumbHTML(i,'')
+      +   '<div class="row-main" style="min-width:0">'
+      +     '<div class="row-title">'+esc(i.name||'未命名')+'</div>'
+      +     '<div class="row-sub">'+sub+'</div>'
+      +     '<div class="bar-row"><div class="bar'+(pct>=100?' done':'')+'"><i style="width:'+pct+'%"></i></div><span class="pc">'+pct+'%</span></div>'
+      +   '</div>'
+      + '</button>'
+      + '<div class="row-right">'
+      +   pillBtn('pick-status', i.id, i.status || '', DB.statuses)
+      +   '<span class="stepper"><button data-act="bump" data-id="'+i.id+'" data-d="-1">−</button><span class="v">'+made+'</span><button data-act="bump" data-id="'+i.id+'" data-d="1">＋</button></span>'
+      + '</div>'
+      + '</div>';
+  }).join('') + '</div>';
+}
+
+/* ---------- Tab3 互换记录 ---------- */
+function viewExchange(){
+  const q = ui.ex.q.trim().toLowerCase();
+  let list = DB.exchanges.slice();
+  if (ui.ex.act !== 'all') list = list.filter(e => ui.ex.act === 'none' ? !e.activityId : e.activityId === ui.ex.act);
+  if (ui.ex.status !== 'all') list = list.filter(e => (e.status || '待寄出') === ui.ex.status);
+  if (ui.ex.tag !== 'all') list = list.filter(e => (e.tags || []).includes(ui.ex.tag));
+  if (q) list = list.filter(e => ((e.partner||'') + (e.note||'') + (e.tags||[]).join(' ')).toLowerCase().includes(q));
+  const rank = s => s === '已完成' ? 2 : (s === '待寄出' ? 1 : 0);
+  list.sort((a,b) => rank(a.status) - rank(b.status) || (b.date || '').localeCompare(a.date || ''));
+
+  const pending = list.filter(e => e.status !== '已完成');
+  const totOut = list.reduce((s,e) => s + sumQty(e,'give'), 0);
+  const totIn  = list.reduce((s,e) => s + sumQty(e,'receive'), 0);
+  const pOut = pending.reduce((s,e) => s + sumQty(e,'give'), 0);
+  const pIn  = pending.reduce((s,e) => s + sumQty(e,'receive'), 0);
+
+  const actChips = sortActs(DB.activities).map(a =>
+    '<button class="chip'+(ui.ex.act===a.id?' on':'')+'" data-act="ex-act" data-v="'+a.id+'">'+esc(a.name)
+    + '<span class="cnt">'+DB.exchanges.filter(x => x.activityId === a.id).length+'</span></button>'
+  ).join('');
+  const stChips = EX_STATUS.map(s =>
+    '<button class="chip'+(ui.ex.status===s.k?' on':'')+'" data-act="ex-status" data-v="'+esc(s.k)+'">'+esc(s.k)+'</button>'
+  ).join('');
+  const tagChips = allTags(DB.exchanges).map(t =>
+    '<button class="chip'+(ui.ex.tag===t?' on':'')+'" data-act="ex-tag" data-v="'+esc(t)+'">#'+esc(t)+'</button>'
+  ).join('');
+
+  let body = '';
+  if (ui.ex.group === 'activity') body = exByActivity(list);
+  else if (ui.ex.group === 'material') body = exByMaterial(list);
+  else body = exByPartner(list);
+
+  return ''
+  + '<div class="hd">'
+  +   '<div class="hd-row"><h1>互换记录</h1>'
+  +     '<button class="hd-btn" data-act="ex-new">＋ 记录</button></div>'
+  +   '<div class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>'
+  +     '<input type="search" placeholder="搜索对象 / 备注 / 标签" value="'+esc(ui.ex.q)+'" data-input="ex-q"></div>'
+  +   '<div class="seg">'
+  +     '<button class="'+(ui.ex.group==='activity'?'on':'')+'" data-act="ex-group" data-v="activity">按活动</button>'
+  +     '<button class="'+(ui.ex.group==='material'?'on':'')+'" data-act="ex-group" data-v="material">按物料</button>'
+  +     '<button class="'+(ui.ex.group==='partner'?'on':'')+'" data-act="ex-group" data-v="partner">按人</button>'
+  +   '</div>'
+  +   '<div class="chips">'
+  +     '<button class="chip'+(ui.ex.act==='all'?' on':'')+'" data-act="ex-act" data-v="all">全部活动</button>' + actChips
+  +     '<button class="chip'+(ui.ex.act==='none'?' on':'')+'" data-act="ex-act" data-v="none">未挂活动</button>'
+  +   '</div>'
+  +   '<div class="chips">'
+  +     '<button class="chip'+(ui.ex.status==='all'?' on':'')+'" data-act="ex-status" data-v="all">全部状态</button>' + stChips
+  +   '</div>'
+  +   (tagChips ? '<div class="chips">'
+  +       '<button class="chip'+(ui.ex.tag==='all'?' on':'')+'" data-act="ex-tag" data-v="all">全部标签</button>' + tagChips
+  +     '</div>' : '')
+  + '</div>'
+  + '<div class="content">'
+  +   '<div class="stats three">'
+  +     '<div class="stat"><b>'+list.length+'</b><span>互换笔数</span></div>'
+  +     '<div class="stat"><b style="color:var(--orange)">'+pOut+'</b><span>待换出</span></div>'
+  +     '<div class="stat"><b style="color:var(--blue)">'+pIn+'</b><span>待换入</span></div>'
+  +   '</div>'
+  +   '<div class="setnote" style="margin:-6px 4px 14px">累计换出 <b>'+totOut+'</b> 件 · 累计换入 <b>'+totIn+'</b> 件</div>'
+  +   body
+  + '</div>';
+}
+
+function exSummaryLine(e){
+  const g = (e.give||[]).map(l => {
+    const it = itemById(l.itemId);
+    return (it ? it.name : '已删物料') + ' ×' + num(l.qty);
+  }).join('、');
+  const r = (e.receive||[]).map(l => (l.name || '未命名') + ' ×' + num(l.qty)).join('、');
+  return { g:g, r:r };
+}
+
+function exCard(e, showAct, hidePartner){
+  const s = exSummaryLine(e);
+  const out = sumQty(e,'give'), inn = sumQty(e,'receive');
+  return '<div class="row">'
+    + '<button class="plan-main" data-act="open-ex" data-id="'+e.id+'">'
+    +   '<div class="row-main">'
+    +     '<div class="row-title">'+(hidePartner ? '' : esc(e.partner||'未填写对象'))
+    +       (showAct && e.activityId ? '<span class="tag">'+esc(actName(e.activityId))+'</span>' : '')
+    +       (e.date ? '<span class="tag plain">'+fmtDate(e.date)+'</span>' : '') + '</div>'
+    +     '<div class="ex-lines">'
+    +       (s.g ? '<div class="ex-line"><span class="lbl" style="color:var(--orange);background:'+tint('#FF9500',.15)+'">给出</span><span class="nm">'+esc(s.g)+'</span></div>' : '')
+    +       (s.r ? '<div class="ex-line"><span class="lbl" style="color:var(--blue);background:'+tint('#007AFF',.15)+'">收到</span><span class="nm">'+esc(s.r)+'</span></div>' : '')
+    +     '</div>'
+    +     '<div class="ex-foot">'+tagsHTML(e.tags)
+    +       '<span class="sum">换出 <b style="color:var(--orange)">'+out+'</b> · 换入 <b style="color:var(--blue)">'+inn+'</b></span></div>'
+    +   '</div>'
+    + '</button>'
+    + '<div class="row-right">' + pillBtn('pick-ex-status', e.id, e.status || '待寄出', EX_STATUS) + '</div>'
+    + '</div>';
+}
+
+function exByActivity(list){
+  let html = '';
+  const secs = [];
+  sortActs(DB.activities).forEach(a => {
+    const its = list.filter(e => e.activityId === a.id);
+    if (its.length) secs.push({ name:a.name, items:its });
+  });
+  const noAct = list.filter(e => !e.activityId);
+  if (noAct.length) secs.push({ name:'未挂活动', items:noAct, muted:true });
+  if (!secs.length){
+    html += DB.exchanges.length
+      ? emptyState('没有匹配的互换记录','换个筛选条件试试。','','')
+      : emptyState('还没有互换记录','点右上角「＋ 记录」，记下和谁换了什么、\n你给出多少、收到多少，方便后续跟进。','新建互换记录','ex-new');
+  }
+  secs.forEach(sec => {
+    let oOut = 0, oIn = 0;
+    sec.items.forEach(e => { oOut += sumQty(e,'give'); oIn += sumQty(e,'receive'); });
+    html += '<div class="group"><div class="group-head"><span class="t'+(sec.muted?' muted':'')+'">'+esc(sec.name)+'</span>'
+      + '<span class="n">'+sec.items.length+' 笔</span><span class="rt">换出 '+oOut+' · 换入 '+oIn+'</span></div>'
+      + '<div class="rows">' + sec.items.map(e => exCard(e, false)).join('') + '</div></div>';
+  });
+  return html;
+}
+
+function exByMaterial(list){
+  const build = src => {
+    const m = {};
+    const bump = (key, field, qty, label) => {
+      if (!key) return;
+      if (!m[key]) m[key] = { out:0, in:0, label:label };
+      m[key][field] += num(qty);
+    };
+    src.forEach(e => {
+      (e.give||[]).forEach(l => {
+        const it = itemById(l.itemId);
+        bump(l.itemId, 'out', l.qty, it ? it.name : '（已删除）');
+      });
+      (e.receive||[]).forEach(l => bump('custom:' + (l.name||'').trim(), 'in', l.qty, (l.name||'').trim()));
+    });
+    return m;
+  };
+  const m = build(list);
+  const keys = Object.keys(m);
+  if (!keys.length) return emptyState('暂无互换数据','记录几笔互换后，这里会按物料汇总换出 / 换入 / 净变化。','','');
+
+  keys.sort((a,b) => (m[b].out + m[b].in) - (m[a].out + m[a].in));
+  let totOut = 0, totIn = 0;
+  keys.forEach(k => { totOut += m[k].out; totIn += m[k].in; });
+  const rows = keys.map(k => {
+    const r = m[k];
+    const it = itemById(k);
+    const net = r.in - r.out;
+    const label = r.label + (k.indexOf('custom:') === 0 ? ' <span class="tag">对方物料</span>' : '');
+    return '<div class="tr"><div class="c1">' + (it ? thumbHTML(it,'sm') : '') + '<span class="nm">'+label+'</span></div>'
+      + '<div class="c2" style="color:var(--orange)">'+r.out+'</div>'
+      + '<div class="c3" style="color:var(--blue)">'+r.in+'</div>'
+      + '<div class="c4" style="color:'+(net>=0?'var(--green)':'var(--red)')+'">'+(net>0?'+':'')+net+'</div></div>';
+  }).join('');
+
+  return ''
+  + '<div class="group"><div class="group-head"><span class="t">按物料统计</span><span class="n">'+keys.length+' 种</span>'
+  +   '<span class="rt">换出 '+totOut+' · 换入 '+totIn+'</span></div>'
+  +   '<div class="tbl"><div class="tr head"><div class="c1">物料</div><div class="c2">换出</div><div class="c3">换入</div><div class="c4">净变化</div></div>'
+  +   rows + '</div>'
+  +   '<div class="setnote">净变化 = 换入 − 换出，正数表示净赚，负数表示净支出。</div></div>';
+}
+
+function exByPartner(list){
+  const map = new Map();
+  list.forEach(e => {
+    const k = e.partner || '未填写';
+    if (!map.has(k)) map.set(k, []);
+    map.get(k).push(e);
+  });
+  if (!map.size) return emptyState('暂无互换对象','记录几笔互换后，这里会按人汇总。','','');
+  const partners = Array.from(map.keys()).sort((a,b) => {
+    const ra = Math.min.apply(null, map.get(a).map(e => e.status === '已完成' ? 2 : 0));
+    const rb = Math.min.apply(null, map.get(b).map(e => e.status === '已完成' ? 2 : 0));
+    return ra - rb;
+  });
+  return partners.map(p => {
+    const es = map.get(p);
+    let oOut = 0, oIn = 0;
+    es.forEach(e => { oOut += sumQty(e,'give'); oIn += sumQty(e,'receive'); });
+    const byAct = new Map();
+    es.forEach(e => {
+      const k = e.activityId || 'none';
+      if (!byAct.has(k)) byAct.set(k, []);
+      byAct.get(k).push(e);
+    });
+    const cards = Array.from(byAct.keys()).map(k => {
+      const its = byAct.get(k);
+      let oo = 0, ii = 0;
+      its.forEach(e => { oo += sumQty(e,'give'); ii += sumQty(e,'receive'); });
+      return '<div style="background:var(--bg);border-radius:12px;padding:4px 10px 6px;margin-top:8px">'
+        + '<div class="group-head" style="margin:6px 2px 2px"><span class="t" style="font-size:14px;'+(k==='none'?'color:var(--txt2)':'')+'">'+esc(k==='none'?'未挂活动':actName(k))+'</span>'
+        + '<span class="n">'+its.length+' 笔</span><span class="rt">换出 '+oo+' · 换入 '+ii+'</span></div>'
+        + its.map(e => exCard(e, false, true)).join('')
+        + '</div>';
+    }).join('');
+    return '<div class="group"><div class="group-head"><span class="t">'+esc(p)+'</span>'
+      + '<span class="n">'+es.length+' 笔</span><span class="rt">换出 '+oOut+' · 换入 '+oIn+'</span></div>'
+      + '<div class="card" style="padding:10px">' + cards + '</div></div>';
+  }).join('');
+}
+
+/* ---------- Tab4 设置 ---------- */
+function viewSettings(){
+  const acts = sortActs(DB.activities);
+  const ACT_PREVIEW = 3;
+  const shown = ui.actExpand ? acts : acts.slice(0, ACT_PREVIEW);
+  const actRows = (shown.length ? shown.map(a => {
+    const n = DB.items.filter(i => actsOf(i).includes(a.id)).length;
+    const e = DB.exchanges.filter(x => x.activityId === a.id).length;
+    const meta = (a.date?fmtDate(a.date):'') + (a.city?' · '+esc(a.city):'') + (a.type?' · '+esc(a.type):'');
+    return '<button class="row press" data-act="edit-act" data-id="'+a.id+'" style="padding-top:9px;padding-bottom:9px">'
+      + '<div class="row-main" style="display:flex;align-items:center;gap:10px;min-width:0">'
+      +   '<span class="row-title" style="white-space:nowrap">'+esc(a.name)+'</span>'
+      +   '<span class="row-sub" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+meta+'</span>'
+      +   '<span class="row-sub" style="white-space:nowrap">料 '+n+' · 换 '+e+'</span></div>'
+      + '<svg class="chev" width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1.5 1.5L6 6.5l-4.5 5"/></svg></button>';
+  }).join('') : '<div class="row"><div class="row-main"><div class="row-sub">还没有活动，先创建一个线下活动。</div></div></div>')
+    + (acts.length > ACT_PREVIEW
+      ? '<button class="row press" data-act="act-expand"><div class="row-main"><div class="row-title" style="color:var(--blue);font-size:14px">'+(ui.actExpand?'收起':'展开全部 '+acts.length+' 个活动')+'</div></div>'
+        + '<svg class="chev" width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1.5 1.5L6 6.5l-4.5 5"/></svg></button>' : '');
+
+  const size = new Blob([JSON.stringify(DB)]).size;
+  const sizeStr = size > 1048576 ? (size/1048576).toFixed(2)+' MB' : Math.max(1,Math.round(size/1024))+' KB';
+  const imgCnt = DB.items.filter(i => i.image).length;
+
+  return ''
+  + '<div class="hd"><div class="hd-row"><h1>设置</h1><span class="sub">数据仅存本机</span></div></div>'
+  + '<div class="content">'
+
+  + '<div class="group"><div class="group-head"><span class="t">活动</span><span class="rt">'+acts.length+' 个</span>'
+  +   '<button class="hd-btn plain" data-act="new-act" style="margin-left:8px">＋ 新建</button></div>'
+  +   '<div class="rows">'+actRows+'</div>'
+  +   '<div class="setnote">活动是独立实体，物料与互换记录都挂在活动下。一个物料可同时归属多个活动。</div></div>'
+
+  + '<div class="group"><div class="group-head"><span class="t">物料选项</span></div>'
+  +   '<div class="rows">'
+  +     '<button class="row press" data-act="mgr-cat"><div class="row-main"><div class="row-title">类别管理</div>'
+  +       '<div class="row-sub">'+DB.categories.length+' 个类别 · 新建物料时可选</div></div>'
+  +       '<svg class="chev" width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1.5 1.5L6 6.5l-4.5 5"/></svg></button>'
+  +     '<button class="row press" data-act="mgr-status"><div class="row-main"><div class="row-title">制作状态管理</div>'
+  +       '<div class="row-sub">'+DB.statuses.map(s => esc(s.k)).join(' / ')+'</div></div>'
+  +       '<svg class="chev" width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1.5 1.5L6 6.5l-4.5 5"/></svg></button>'
+  +   '</div></div>'
+
+  + '<div class="group"><div class="group-head"><span class="t">数据概览</span></div>'
+  +   '<div class="rows">'
+  +     '<div class="kv"><span class="k">物料</span><span class="v">'+DB.items.length+' 件（'+imgCnt+' 张图片）</span></div>'
+  +     '<div class="kv"><span class="k">互换记录</span><span class="v">'+DB.exchanges.length+' 笔</span></div>'
+  +     '<div class="kv"><span class="k">活动</span><span class="v">'+DB.activities.length+' 个</span></div>'
+  +     '<div class="kv"><span class="k">占用空间</span><span class="v">'+sizeStr+'</span></div>'
+  +   '</div></div>'
+
+  + '<div class="group"><div class="group-head"><span class="t">备份与恢复</span></div>'
+  +   '<div class="rows">'
+  +     '<button class="row press" data-act="export"><div class="row-main"><div class="row-title">导出备份文件</div><div class="row-sub">生成 JSON 文件保存到本地或网盘</div></div>'
+  +       '<svg class="chev" width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1.5 1.5L6 6.5l-4.5 5"/></svg></button>'
+  +     '<button class="row press" data-act="import"><div class="row-main"><div class="row-title">导入备份文件</div><div class="row-sub">从 JSON 文件恢复数据</div></div>'
+  +       '<svg class="chev" width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1.5 1.5L6 6.5l-4.5 5"/></svg></button>'
+  +   '</div>'
+  +   '<div class="setnote">最近备份：<b>'+fmtTime(ui.gh.last)+'</b></div></div>'
+
+  + '<div class="group"><div class="group-head"><span class="t">GitHub 云端备份</span></div>'
+  +   '<div class="fieldset">'
+  +     '<div class="field"><label>仓库</label><input placeholder="用户名/仓库名，如 myname/fan-backup" value="'+esc(ui.gh.repo)+'" data-input="gh-repo" autocomplete="off"></div>'
+  +     '<div class="field"><label>Token</label><input type="password" placeholder="ghp_... 或个人访问令牌" value="'+esc(ui.gh.token)+'" data-input="gh-token" autocomplete="off"></div>'
+  +     '<div class="field"><label>分支</label><input placeholder="默认 main" value="'+esc(ui.gh.branch)+'" data-input="gh-branch" autocomplete="off"></div>'
+  +     '<div class="field"><label>文件路径</label><input placeholder="'+GH_DEFAULT_PATH+'" value="'+esc(ui.gh.path)+'" data-input="gh-path" autocomplete="off"></div>'
+  +   '</div>'
+  +   '<div class="btn-group"><button class="btn" data-act="gh-backup">备份到仓库</button>'
+  +     '<button class="btn ghost" data-act="gh-restore">从仓库恢复</button></div>'
+  +   '<div class="setnote">'
+  +     '用法：填 <b>用户名/仓库名</b>（私有仓库更安全），Token 需有该仓库的 <b>Contents 读写</b> 权限（经典 Token 勾 <code>repo</code>）。<br>'
+  +     '每次备份会向仓库提交一个 JSON 文件（可留历史版本），恢复时读取同一路径覆盖本机数据。<br>'
+  +     'Token 只保存在你本机浏览器里，不会写进备份文件，也不会发给任何第三方。'
+  +   '</div></div>'
+
+  + '<div class="group"><div class="group-head"><span class="t">外观</span></div>'
+  +   '<div class="seg" style="margin:0">'
+  +     '<button class="'+(ui.theme==='auto'?'on':'')+'" data-act="theme" data-v="auto">跟随系统</button>'
+  +     '<button class="'+(ui.theme==='light'?'on':'')+'" data-act="theme" data-v="light">浅色</button>'
+  +     '<button class="'+(ui.theme==='dark'?'on':'')+'" data-act="theme" data-v="dark">深色</button>'
+  +   '</div></div>'
+
+  + '<div class="group"><div class="group-head"><span class="t">其他</span></div>'
+  +   '<div class="rows">'
+  +     '<button class="row press" data-act="seed"><div class="row-main"><div class="row-title">载入示例数据</div><div class="row-sub">用一组演示数据快速体验各功能</div></div>'
+  +       '<svg class="chev" width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1.5 1.5L6 6.5l-4.5 5"/></svg></button>'
+  +     '<button class="row press" data-act="clear"><div class="row-main"><div class="row-title" style="color:var(--red)">清空全部数据</div><div class="row-sub">删除本机所有物料、活动与互换记录</div></div>'
+  +       '<svg class="chev" width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1.5 1.5L6 6.5l-4.5 5"/></svg></button>'
+  +   '</div></div>'
+
+  + '<div class="setnote" style="text-align:center;margin-top:24px">追星物料管理台 v2.0<br>数据保存在本机浏览器，换设备请使用导出或 GitHub 备份</div>'
+  + '</div>';
+}
+
+function emptyState(title, desc, btnText, act){
+  return '<div class="empty"><div class="ico">✧</div><div class="t">'+esc(title)+'</div>'
+    + '<div class="d">'+esc(desc).replace(/\n/g,'<br>')+'</div>'
+    + (btnText ? '<button class="btn" data-act="'+act+'" style="margin-top:16px">'+esc(btnText)+'</button>' : '')
+    + '</div>';
+}
+
+/* =========================================================
+   弹层基础
+   ========================================================= */
+let sheetTimer = null;
+function openSheet(title, bodyHTML, rightBtn){
+  const root = $('#sheet-root');
+  clearTimeout(sheetTimer);
+  const rb = rightBtn
+    ? '<button class="rt" id="sheet-save">'+esc(rightBtn)+'</button>'
+    : '<span class="ph"></span>';
+  $('#sheet').innerHTML = '<div class="grabber"></div>'
+    + '<div class="sheet-hd"><button data-act="closeSheet">取消</button><span class="ttl">'+esc(title)+'</span>'
+    + rb + '</div>'
+    + '<div class="sheet-body">'+bodyHTML+'</div>';
+  root.classList.add('open');
+  requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add('show')));
+}
+function openSheetRaw(title, bodyHTML){
+  const root = $('#sheet-root');
+  clearTimeout(sheetTimer);
+  $('#sheet').innerHTML = '<div class="grabber"></div><div class="sheet-hd"><button data-act="closeSheet">取消</button>'
+    + '<span class="ttl">'+esc(title)+'</span><span class="ph"></span></div><div class="sheet-body">'+bodyHTML+'</div>';
+  root.classList.add('open');
+  requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add('show')));
+}
+function closeSheet(){
+  const root = $('#sheet-root');
+  root.classList.remove('show');
+  clearTimeout(sheetTimer);
+  sheetTimer = setTimeout(() => { root.classList.remove('open'); $('#sheet').innerHTML=''; }, 300);
+  draft = null; rxTarget = -1;
+}
+
+let dlgDone = null;
+function confirmDialog(opt){
+  return new Promise(res => {
+    const root = $('#dialog-root');
+    $('#dialog').innerHTML = '<div class="dt">'+esc(opt.title)+'</div>'
+      + (opt.msg ? '<div class="dm">'+esc(opt.msg).replace(/\n/g,'<br>')+'</div>' : '')
+      + '<div class="da"><button data-r="0">'+esc(opt.cancel||'取消')+'</button>'
+      + '<button class="strong '+(opt.danger?'danger':'')+'" data-r="1">'+esc(opt.ok||'确定')+'</button></div>';
+    root.classList.add('open');
+    requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add('show')));
+    let settled = false;
+    const done = v => {
+      if (settled) return;
+      settled = true; dlgDone = null;
+      root.classList.remove('show');
+      setTimeout(() => root.classList.remove('open'), 200);
+      res(v);
+    };
+    dlgDone = done;
+    $('#dialog').querySelectorAll('.da button').forEach(b => b.onclick = () => done(b.dataset.r === '1'));
+  });
+}
+
+/* =========================================================
+   物料表单
+   ========================================================= */
+function itemFormHTML(it){
+  const catOpts = '<option value=""'+(it.category?'':' selected')+'>未分类</option>'
+    + DB.categories.map(c => '<option value="'+esc(c)+'"'+(it.category===c?' selected':'')+'>'+esc(c)+'</option>').join('');
+  const stOpts = DB.statuses.map(s => '<option value="'+esc(s.k)+'"'+(it.status===s.k?' selected':'')+'>'+esc(s.k)+'</option>').join('');
+  const acts = actsOf(it);
+  const stockVal = it.id ? availOf(it, exchangeFlow()) : num(it.madeQty);
+  return ''
+  + '<div class="img-picker"><div class="ph" id="img-ph">'+(it.image?'<img src="'+it.image+'">':'＋')+'</div>'
+  +   '<div class="info"><div class="l1" id="img-btn">上传物料图</div><div class="l2">自动压缩，建议正图或平铺图</div></div>'
+  +   (it.image ? '<button class="hd-btn plain" data-act="img-clear" style="color:var(--red)">移除</button>' : '')
+  + '</div>'
+  + '<input type="file" accept="image/*" id="img-input" style="display:none">'
+
+  + '<div class="fieldset">'
+  +   '<div class="field"><label class="req">名称</label><input id="f-name" placeholder="如：团体手幅" value="'+esc(it.name)+'" autocomplete="off"></div>'
+  +   '<div class="field"><label>类别</label><select id="f-cat">'+catOpts+'</select><span class="sel-arrow">›</span></div>'
+  +   '<div class="field"><label>制作状态</label><select id="f-status">'+stOpts+'</select><span class="sel-arrow">›</span></div>'
+  + '</div>'
+
+  + '<div class="pick-wrap"><div class="pick-hd">所属活动企划（可多选）</div><div class="chips" style="margin-top:0" id="act-chips">'
+  +   (sortActs(DB.activities).map(a => '<button class="chip'+(acts.includes(a.id)?' on':'')+'" data-act="pick-act" data-v="'+a.id+'">'+esc(a.name)+'</button>').join('')
+      || '<span class="setnote" style="margin:0">还没有活动，可先到「设置」创建</span>')
+  + '</div></div>'
+
+  + '<div class="form-label">制作情况 <span class="hint">余量随互换自动增减，也可直接修改</span></div>'
+  + '<div class="fieldset">'
+  +   '<div class="field"><label>计划数量</label><input type="number" inputmode="numeric" id="f-plan" value="'+num(it.planQty)+'" style="text-align:right"><span class="suffix">件</span></div>'
+  +   '<div class="field"><label>已完成</label><input type="number" inputmode="numeric" id="f-made" value="'+num(it.madeQty)+'" style="text-align:right"><span class="suffix">件</span></div>'
+  +   '<div class="field"><label>当前余量</label><input type="number" inputmode="numeric" id="f-stock" value="'+stockVal+'" style="text-align:right"><span class="suffix">件</span></div>'
+  +   '<div class="field"><label>单件成本</label><input type="number" inputmode="decimal" id="f-cost" value="'+(it.cost===''||it.cost==null?'':it.cost)+'" placeholder="选填" style="text-align:right"><span class="suffix">元</span></div>'
+  +   '<div class="field"><label>到货日期</label><input type="date" id="f-got" value="'+esc(it.gotDate||'')+'" style="text-align:right"></div>'
+  + '</div>'
+
+  + '<div class="form-label">制作对接 <span class="hint">选填</span></div>'
+  + '<div class="fieldset">'
+  +   '<div class="field"><label>工厂</label><input id="f-factory" placeholder="代工厂名称" value="'+esc(it.factory||'')+'"></div>'
+  +   '<div class="field"><label>美工</label><input id="f-designer" placeholder="设计 / 排版" value="'+esc(it.designer||'')+'"></div>'
+  +   '<div class="field"><label>画师</label><input id="f-artist" placeholder="稿件画师" value="'+esc(it.artist||'')+'"></div>'
+  + '</div>'
+
+  + '<div class="form-label">标签 <span class="hint">用逗号或空格分隔</span></div>'
+  + '<div class="fieldset"><div class="field"><label>标签</label><input id="f-tags" placeholder="自用, 互换" value="'+esc((it.tags||[]).join(', '))+'"></div></div>'
+
+  + '<div class="form-label">备注</div>'
+  + '<div class="fieldset"><div class="field col"><textarea id="f-note" placeholder="设计说明、尺寸、注意事项…">'+esc(it.note||'')+'</textarea></div></div>'
+  + (it.id ? '<div class="btn-group"><button class="btn gray" data-act="closeSheet">取消</button><button class="btn danger" data-act="del-item" data-id="'+it.id+'">删除物料</button></div>' : '');
+}
+
+function collectItem(){
+  const g = id => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
+  const tags = g('f-tags').split(/[,，\s]+/).map(s => s.replace(/^#/,'').trim()).filter(Boolean);
+  const fl = flowOf(exchangeFlow(), draft && draft.id);
+  const base = num(g('f-made')) - fl.out + fl.in;
+  const stockRaw = g('f-stock');
+  return {
+    name: g('f-name'),
+    category: g('f-cat'),
+    status: g('f-status') || (DB.statuses[0] || {}).k || '',
+    planQty: num(g('f-plan')),
+    madeQty: num(g('f-made')),
+    stockAdj: stockRaw === '' ? 0 : Math.round(num(stockRaw) - base),
+    cost: g('f-cost') === '' ? '' : num(g('f-cost')),
+    gotDate: g('f-got'),
+    factory: g('f-factory'),
+    designer: g('f-designer'),
+    artist: g('f-artist'),
+    tags: tags,
+    note: g('f-note'),
+    activityIds: (draft && draft.activityIds ? draft.activityIds : []).slice(),
+  };
+}
+
+function saveItem(){
+  const d = collectItem();
+  if (!d.name){ toast('请填写物料名称'); return; }
+  if (d.category && !DB.categories.includes(d.category)) DB.categories.push(d.category);
+  if (draft && draft.id){
+    const it = itemById(draft.id);
+    Object.assign(it, d, { image: draft.image || null, updatedAt: Date.now() });
+    toast('已保存');
+  } else {
+    DB.items.push(Object.assign({ id: uid(), image: (draft && draft.image) || null, createdAt: Date.now() }, d));
+    toast('已创建物料');
+  }
+  save(); closeSheet(); render();
+}
+
+/* ---------- 物料详情 ---------- */
+function openItemDetail(id){
+  const it = itemById(id); if (!it) return;
+  const flow = exchangeFlow();
+  const f = flowOf(flow, id);
+  const rest = availOf(it, flow);
+  const plan = num(it.planQty), made = num(it.madeQty), todo = Math.max(0, plan - made);
+  const total = num(it.cost) * made;
+  const related = DB.exchanges.filter(e => (e.give||[]).some(l => l.itemId === id));
+  const prod = [
+    it.factory ? '工厂 ' + it.factory : '',
+    it.designer ? '美工 ' + it.designer : '',
+    it.artist ? '画师 ' + it.artist : '',
+  ].filter(Boolean).join(' · ');
+
+  const body = ''
+  + '<div class="detail-hero">' + thumbHTML(it,'lg')
+  +   '<div class="meta"><div class="nm">'+esc(it.name||'未命名')+'</div>'
+  +   '<div style="margin-top:8px">'+pill(it.status||'', DB.statuses)+'</div>'
+  +   '<div class="tags">'+tagsHTML(it.tags)+'</div></div></div>'
+
+  + '<div class="fieldset">'
+  +   '<div class="kv"><span class="k">所属活动</span><span class="v">'+(actsOf(it).map(a => esc(actName(a))).join('、') || '未挂活动')+'</span></div>'
+  +   '<div class="kv"><span class="k">类别</span><span class="v">'+esc(it.category||'未分类')+'</span></div>'
+  +   '<div class="kv"><span class="k">制作进度</span><span class="v">已做 '+made+' / 计划 '+plan+' · 待做 '+todo+'</span></div>'
+  +   (it.cost!=='' && it.cost!=null ? '<div class="kv"><span class="k">单件成本 / 合计</span><span class="v">¥'+num(it.cost)+' / ¥'+total+'</span></div>' : '')
+  +   (it.gotDate ? '<div class="kv"><span class="k">到货日期</span><span class="v">'+fmtDate(it.gotDate)+'</span></div>' : '')
+  + '</div>'
+
+  + (prod ? '<div class="form-label">制作对接</div><div class="fieldset"><div class="kv"><span class="v" style="flex:1;text-align:left">'+esc(prod)+'</span></div></div>' : '')
+
+  + '<div class="form-label">互换情况</div>'
+  + '<div class="fieldset">'
+  +   '<div class="kv"><span class="k">换出</span><span class="v" style="color:var(--orange)">'+f.out+' 件</span></div>'
+  +   '<div class="kv"><span class="k">换入</span><span class="v" style="color:var(--blue)">'+f.in+' 件</span></div>'
+  +   '<div class="kv"><span class="k">可用余量</span><span class="v">'+rest+' 件</span></div>'
+  +   '<div class="kv"><span class="k">涉及互换记录</span><span class="v">'+related.length+' 笔</span></div>'
+  + '</div>'
+
+  + (it.note ? '<div class="form-label">备注</div><div class="fieldset"><div class="field col" style="padding:12px 14px;font-size:15px;line-height:1.6">'+esc(it.note).replace(/\n/g,'<br>')+'</div></div>' : '')
+
+  + '<div class="btn-group"><button class="btn ghost" data-act="pick-status" data-id="'+id+'">改状态</button>'
+  +   '<button class="btn" data-act="edit-item" data-id="'+id+'">编辑</button></div>';
+
+  openSheet('物料详情', body);
+}
+
+/* ---------- 状态选择器 ---------- */
+function openStatusPicker(id, list, act){
+  const it = itemById(id);
+  const cur = it ? it.status : '';
+  const body = '<div class="fieldset">' + list.map(s =>
+    '<button class="row press" data-act="'+act+'" data-id="'+id+'" data-v="'+esc(s.k)+'">'
+    + '<div class="row-main"><div class="row-title"><span class="swatch" style="background:'+s.c+';width:14px;height:14px"></span>'+esc(s.k)+'</div></div>'
+    + (cur === s.k ? '<span style="color:var(--blue);font-size:18px">✓</span>' : '')
+    + '</button>').join('') + '</div>';
+  openSheetRaw('修改状态', body);
+}
+
+/* =========================================================
+   互换表单
+   ========================================================= */
+function exFormHTML(e){
+  const acts = sortActs(DB.activities);
+  const actOpts = '<option value="">未挂活动</option>' + acts.map(a =>
+    '<option value="'+a.id+'"'+(e.activityId===a.id?' selected':'')+'>'+esc(a.name)+'</option>').join('');
+  const stOpts = EX_STATUS.map(s => '<option value="'+s.k+'"'+(e.status===s.k?' selected':'')+'>'+s.k+'</option>').join('');
+  const showTrack = (e.status || '待寄出') === '待寄出';
+  return ''
+  + '<div class="fieldset">'
+  +   '<div class="field"><label class="req">互换对象</label><input id="f-partner" placeholder="对方昵称 / 站子名" value="'+esc(e.partner)+'" autocomplete="off"></div>'
+  +   '<div class="field"><label>关联活动</label><select id="f-act">'+actOpts+'</select><span class="sel-arrow">›</span></div>'
+  +   '<div class="field"><label>日期</label><input type="date" id="f-date" value="'+esc(e.date||todayStr())+'" style="text-align:right"></div>'
+  +   '<div class="field"><label>状态</label><select id="f-status">'+stOpts+'</select><span class="sel-arrow">›</span></div>'
+  +   '<div class="field" id="track-wrap" style="display:'+(showTrack?'':'none')+'"><label>快递单号</label><input id="f-track" placeholder="选填" value="'+esc(e.tracking||'')+'"></div>'
+  + '</div>'
+  + linesBoxHTML('give', e.give)
+  + linesBoxHTML('receive', e.receive)
+  + '<div class="form-label">标签 <span class="hint">如：顺丰, 面交, 急需</span></div>'
+  + '<div class="fieldset"><div class="field"><label>标签</label><input id="f-tags" placeholder="顺丰, 面交" value="'+esc((e.tags||[]).join(', '))+'"></div></div>'
+  + '<div class="form-label">备注</div>'
+  + '<div class="fieldset"><div class="field col"><textarea id="f-note" placeholder="沟通进展、补寄安排…">'+esc(e.note||'')+'</textarea></div></div>'
+  + '<input type="file" accept="image/*" id="rx-img-input" style="display:none">'
+  + (e.id ? '<div class="btn-group"><button class="btn gray" data-act="closeSheet">取消</button><button class="btn danger" data-act="del-ex" data-id="'+e.id+'">删除记录</button></div>' : '');
+}
+
+function linesBoxHTML(side, arr){
+  let list = (arr && arr.length) ? arr : null;
+  if (!list){
+    list = side === 'give' ? [{ itemId:'', qty:1 }] : [{ name:'', qty:1, image:'' }];
+  }
+  return '<div class="linebox"><div class="lb-hd"><span class="lb-t">'+(side==='give'?'我给出':'我收到')
+    + (side==='receive' ? ' <span class="setnote" style="display:inline;margin:0">手写名称 · 可传图</span>' : '')+'</span>'
+    + '<button class="add" data-act="line-add" data-side="'+side+'">＋ 添加</button></div>'
+    + '<div id="lines-'+side+'">' + list.map((l,idx) => lineRowHTML(side, l, idx)).join('') + '</div></div>';
+}
+
+function lineRowHTML(side, l, idx){
+  if (side === 'give'){
+    const opt = '<option value="">从物料库选择…</option>'
+      + sortActs(DB.activities).map(a => {
+          const sub = DB.items.filter(i => actsOf(i).includes(a.id));
+          if (!sub.length) return '';
+          return '<optgroup label="'+esc(a.name)+'">' + sub.map(i =>
+            '<option value="'+i.id+'"'+(l.itemId===i.id?' selected':'')+'>'+esc(i.name)+'</option>').join('') + '</optgroup>';
+        }).join('')
+      + (DB.items.filter(i => !actsOf(i).length).length
+          ? '<optgroup label="未挂活动">' + DB.items.filter(i => !actsOf(i).length).map(i =>
+            '<option value="'+i.id+'"'+(l.itemId===i.id?' selected':'')+'>'+esc(i.name)+'</option>').join('') + '</optgroup>'
+          : '');
+    return '<div class="lrow" data-side="give" data-idx="'+idx+'">'
+      + '<select data-act="line-pick" data-side="give" data-idx="'+idx+'">'+opt+'</select>'
+      + '<input type="number" inputmode="numeric" min="0" data-act="line-qty" data-side="give" data-idx="'+idx+'" value="'+num(l.qty)+'">'
+      + '<button class="del" data-act="line-del" data-side="give" data-idx="'+idx+'">−</button>'
+      + '</div>';
+  }
+  const img = l.image
+    ? '<button class="imgbtn" data-act="rx-img" data-idx="'+idx+'"><img src="'+l.image+'"></button>'
+    : '<button class="imgbtn" data-act="rx-img" data-idx="'+idx+'">＋图</button>';
+  return '<div class="lrow" data-side="receive" data-idx="'+idx+'">'
+    + '<input class="txt" data-act="line-name" data-side="receive" data-idx="'+idx+'" placeholder="对方物料名称" value="'+esc(l.name||'')+'">'
+    + '<input type="number" inputmode="numeric" min="0" data-act="line-qty" data-side="receive" data-idx="'+idx+'" value="'+num(l.qty)+'">'
+    + img
+    + '<button class="del" data-act="line-del" data-side="receive" data-idx="'+idx+'">−</button>'
+    + '</div>';
+}
+function rerenderLines(side){
+  const box = document.getElementById('lines-' + side);
+  if (box) box.innerHTML = draft[side].map((l,idx) => lineRowHTML(side, l, idx)).join('');
+}
+
+function collectExchange(){
+  const g = id => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
+  const give = (draft.give || []).filter(l => l.itemId && num(l.qty) > 0).map(l => ({ itemId:l.itemId, qty:num(l.qty) }));
+  const receive = (draft.receive || []).filter(l => (l.name || '').trim() && num(l.qty) > 0)
+    .map(l => ({ name:(l.name || '').trim(), qty:num(l.qty), image:l.image || '' }));
+  const st = g('f-status') || '待寄出';
+  return {
+    partner: g('f-partner'),
+    activityId: g('f-act') || '',
+    date: g('f-date') || todayStr(),
+    status: st,
+    tracking: st === '待寄出' ? g('f-track') : '',
+    tags: g('f-tags').split(/[,，\s]+/).map(s => s.replace(/^#/,'').trim()).filter(Boolean),
+    note: g('f-note'),
+    give: give,
+    receive: receive,
+  };
+}
+function saveExchange(){
+  const d = collectExchange();
+  if (!d.partner){ toast('请填写互换对象'); return; }
+  if (!d.give.length && !d.receive.length){ toast('至少记录一项给出或收到的物料'); return; }
+  if (draft && draft.id){
+    const e = DB.exchanges.find(x => x.id === draft.id);
+    Object.assign(e, d, { updatedAt: Date.now() });
+    toast('已保存');
+  } else {
+    DB.exchanges.push(Object.assign({ id: uid(), createdAt: Date.now() }, d));
+    toast('已记录');
+  }
+  save(); closeSheet(); render();
+}
+
+function bindExForm(){
+  actionSave = saveExchange;
+  const sb = $('#sheet-save'); if (sb) sb.dataset.mode = 'exchange';
+  const st = document.getElementById('f-status');
+  if (st) st.onchange = () => {
+    const w = document.getElementById('track-wrap');
+    if (w) w.style.display = st.value === '待寄出' ? '' : 'none';
+  };
+  const inp = document.getElementById('rx-img-input');
+  if (inp) inp.onchange = async () => {
+    const f = inp.files && inp.files[0];
+    inp.value = '';
+    if (!f || rxTarget < 0 || !draft) return;
+    if (f.size > 12 * 1024 * 1024){ toast('图片过大，请选择 12MB 以内的图片'); return; }
+    try {
+      const d = await compressImage(f, 640, 0.72);
+      if (draft.receive[rxTarget]){ draft.receive[rxTarget].image = d; rerenderLines('receive'); }
+    } catch(err){ toast('图片处理失败'); }
+    rxTarget = -1;
+  };
+}
+
+function openExDetail(id){
+  const e = DB.exchanges.find(x => x.id === id); if (!e) return;
+  const out = sumQty(e,'give'), inn = sumQty(e,'receive');
+  const giveRows = (e.give||[]).map(l => {
+    const it = itemById(l.itemId);
+    return '<div class="kv"><span class="k">'+(it ? thumbHTML(it,'xs') : '')+'</span>'
+      + '<span class="v" style="flex:1;text-align:left">'+esc(it ? it.name : '（已删除物料）')+'</span>'
+      + '<span class="v" style="color:var(--orange)">×'+num(l.qty)+'</span></div>';
+  }).join('');
+  const rxImgs = (e.receive||[]).filter(l => l.image).map(l => '<img src="'+l.image+'">').join('');
+  const rxRows = (e.receive||[]).map(l =>
+    '<div class="kv"><span class="k"></span>'
+    + '<span class="v" style="flex:1;text-align:left">'+esc(l.name)+'</span>'
+    + '<span class="v" style="color:var(--blue)">×'+num(l.qty)+'</span></div>').join('');
+  const done = e.status === '已完成';
+  const body = ''
+  + '<div class="detail-hero"><div class="meta"><div class="nm">'+esc(e.partner||'未填写对象')+'</div>'
+  +   '<div style="margin-top:8px">'+pill(e.status||'待寄出', EX_STATUS)+'</div>'
+  +   '<div class="tags">'+tagsHTML(e.tags)+'</div></div></div>'
+  + '<div class="fieldset">'
+  +   '<div class="kv"><span class="k">关联活动</span><span class="v">'+(e.activityId?esc(actName(e.activityId)):'未挂活动')+'</span></div>'
+  +   '<div class="kv"><span class="k">日期</span><span class="v">'+fmtDate(e.date)+'</span></div>'
+  +   (e.status === '待寄出' && e.tracking ? '<div class="kv"><span class="k">快递单号</span><span class="v">'+esc(e.tracking)+'</span></div>' : '')
+  + '</div>'
+  + '<div class="form-label">我给出 <span class="hint">共 '+out+' 件</span></div>'
+  + '<div class="fieldset">' + (giveRows || '<div class="kv"><span class="k">未记录</span><span class="v"></span></div>') + '</div>'
+  + '<div class="form-label">我收到 <span class="hint">共 '+inn+' 件</span></div>'
+  + '<div class="fieldset">' + (rxRows || '<div class="kv"><span class="k">未记录</span><span class="v"></span></div>')
+  +   (rxImgs ? '<div class="rx-imgs">'+rxImgs+'</div>' : '')
+  + '</div>'
+  + (e.note ? '<div class="form-label">备注</div><div class="fieldset"><div class="field col" style="padding:12px 14px;font-size:15px;line-height:1.6">'+esc(e.note).replace(/\n/g,'<br>')+'</div></div>' : '')
+  + '<div class="btn-group"><button class="btn gray" data-act="closeSheet">取消</button>'
+  +   '<button class="btn" data-act="ex-complete" data-id="'+id+'"'+(done?' disabled':'')+'>'+(done?'已完成':'完成')+'</button></div>';
+  openSheet('互换详情', body, '编辑');
+  const sb = $('#sheet-save');
+  sb.dataset.mode = 'editex';
+  sb.dataset.id = id;
+}
+function startEditExchange(id){
+  const e = DB.exchanges.find(x => x.id === id); if (!e) return;
+  draft = {
+    id:e.id, partner:e.partner, activityId:e.activityId, date:e.date, status:e.status,
+    tracking:e.tracking || '', tags:e.tags || [], note:e.note || '',
+    give:(e.give||[]).map(l => ({ itemId:l.itemId || '', qty:num(l.qty) })),
+    receive:(e.receive||[]).map(l => ({ name:l.name || '', qty:num(l.qty), image:l.image || '' })),
+  };
+  if (!draft.give.length) draft.give = [{ itemId:'', qty:1 }];
+  if (!draft.receive.length) draft.receive = [{ name:'', qty:1, image:'' }];
+  openSheet('编辑互换记录', exFormHTML(e), '保存');
+  bindExForm();
+}
+
+/* ---------- 活动表单 ---------- */
+function actFormHTML(a){
+  const tOpts = ACT_TYPES.map(t => '<option value="'+t+'"'+(a.type===t?' selected':'')+'>'+t+'</option>').join('');
+  return '<div class="fieldset">'
+  + '<div class="field"><label class="req">活动名称</label><input id="f-name" placeholder="如：10月北京演唱会" value="'+esc(a.name)+'"></div>'
+  + '<div class="field"><label>日期</label><input type="date" id="f-date" value="'+esc(a.date||'')+'" style="text-align:right"></div>'
+  + '<div class="field"><label>城市</label><input id="f-city" placeholder="选填" value="'+esc(a.city||'')+'"></div>'
+  + '<div class="field"><label>类型</label><select id="f-type">'+tOpts+'</select><span class="sel-arrow">›</span></div>'
+  + '<div class="field"><label>场馆</label><input id="f-venue" placeholder="选填" value="'+esc(a.venue||'')+'"></div>'
+  + '</div>'
+  + '<div class="form-label">备注</div>'
+  + '<div class="fieldset"><div class="field col"><textarea id="f-note" placeholder="物料预算、注意事项、同行伙伴…">'+esc(a.note||'')+'</textarea></div></div>'
+  + (a.id ? '<div class="btn-group"><button class="btn gray" data-act="closeSheet">取消</button><button class="btn danger" data-act="del-act" data-id="'+a.id+'">删除活动</button></div>' : '');
+}
+function saveActivity(){
+  const g = id => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
+  const d = { name:g('f-name'), date:g('f-date'), city:g('f-city'), type:g('f-type'), venue:g('f-venue'), note:g('f-note') };
+  if (!d.name){ toast('请填写活动名称'); return; }
+  if (draft && draft.id){
+    Object.assign(DB.activities.find(x => x.id === draft.id), d);
+  } else {
+    DB.activities.push(Object.assign({ id: uid(), createdAt: Date.now() }, d));
+  }
+  save(); closeSheet(); render(); toast('已保存');
+}
+
+/* =========================================================
+   类别 / 状态管理
+   ========================================================= */
+function openCatMgr(){
+  const rows = DB.categories.map(c => {
+    const n = DB.items.filter(i => i.category === c).length;
+    return '<div class="field"><label style="width:auto;flex:1">'+esc(c)+'</label>'
+      + '<span class="suffix">'+n+' 件</span>'
+      + '<button style="width:30px;height:30px;border-radius:50%;background:var(--fill);color:var(--red);font-size:16px;flex:0 0 auto" data-act="cat-del" data-v="'+esc(c)+'">−</button></div>';
+  }).join('');
+  const body = '<div class="fieldset">'+rows+'</div>'
+    + '<div class="form-label">添加类别</div>'
+    + '<div class="fieldset"><div class="field"><input id="new-cat" placeholder="如：吧唧套"><button class="btn sm" data-act="cat-add">添加</button></div></div>'
+    + '<div class="setnote">删除类别不会删除物料，已使用该类别的物料会保留原文字。</div>';
+  openSheet('类别管理', body, '完成');
+  $('#sheet-save').dataset.mode = 'close';
+}
+function openStatusMgr(){
+  openSheet('制作状态管理', '', '完成');
+  $('#sheet-save').dataset.mode = 'close';
+  renderStatusMgr();
+}
+function renderStatusMgr(){
+  const rows = DB.statuses.map((s,idx) =>
+    '<div class="field"><button class="swatch" style="background:'+s.c+'" data-act="st-color" data-i="'+idx+'"></button>'
+    + '<input data-act="st-name" data-i="'+idx+'" value="'+esc(s.k)+'" style="flex:1;min-width:0">'
+    + '<button style="width:30px;height:30px;border-radius:50%;background:var(--fill);color:var(--red);font-size:16px;flex:0 0 auto" data-act="st-del" data-i="'+idx+'">−</button></div>'
+  ).join('');
+  const body = '<div class="fieldset">'+rows+'</div>'
+    + '<button class="btn ghost full" data-act="st-add">＋ 添加状态</button>'
+    + '<div class="setnote">点左侧圆点换颜色；改名后已使用原状态的物料会同步更新；删除后相关物料回到第一个状态。</div>';
+  $('#sheet .sheet-body').innerHTML = body;
+}
+function openPalette(idx){
+  const s = DB.statuses[idx]; if (!s) return;
+  const body = '<div class="pal">' + PALETTE.map(c =>
+    '<button style="background:'+c+'" class="'+(s.c===c?'on':'')+'" data-act="st-setcolor" data-i="'+idx+'" data-c="'+c+'"></button>').join('') + '</div>'
+    + '<div class="setnote">选择一个代表色，用于状态药丸与筛选。</div>';
+  openSheetRaw('状态颜色', body);
+}
+
+/* =========================================================
+   导入导出 & GitHub
+   ========================================================= */
+function exportData(){
+  return { app:'starmerch', version:2, exportedAt:new Date().toISOString(),
+    activities:DB.activities, items:DB.items, exchanges:DB.exchanges,
+    categories:DB.categories, statuses:DB.statuses };
+}
+function download(name, text){
+  const b = new Blob([text], {type:'application/json;charset=utf-8'});
+  const u = URL.createObjectURL(b);
+  const a = document.createElement('a');
+  a.href = u; a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(u); a.remove(); }, 500);
+}
+function doExport(){
+  const d = new Date();
+  const n = '追星物料备份-' + d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0') + '.json';
+  download(n, JSON.stringify(exportData(), null, 2));
+  toast('已导出备份文件');
+}
+function applyImport(obj){
+  DB.activities = Array.isArray(obj.activities) ? obj.activities : [];
+  DB.items = Array.isArray(obj.items) ? obj.items : [];
+  DB.exchanges = Array.isArray(obj.exchanges) ? obj.exchanges : [];
+  DB.categories = Array.isArray(obj.categories) ? obj.categories : [];
+  DB.statuses = Array.isArray(obj.statuses) ? obj.statuses : [];
+  normalize();
+  save(true); render();
+}
+function doImport(){
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = '.json,application/json';
+  inp.onchange = async () => {
+    const f = inp.files && inp.files[0]; if (!f) return;
+    try {
+      const obj = JSON.parse(await f.text());
+      if (!obj || (!obj.items && !obj.activities && !obj.exchanges)) throw new Error('格式不正确');
+      const ok = await confirmDialog({ title:'导入备份？', msg:'将覆盖本机现有数据：\n物料 '+(obj.items||[]).length+' 件 / 互换 '+(obj.exchanges||[]).length+' 笔', ok:'覆盖导入', danger:true });
+      if (!ok) return;
+      applyImport(obj);
+      toast('导入完成');
+    } catch(e){ toast('导入失败：' + (e.message||'文件格式错误')); }
+  };
+  inp.click();
+}
+
+const GH_DEFAULT_PATH = 'backup/starmerch-backup.json';
+function b64enc(str){
+  return btoa(unescape(encodeURIComponent(str)));
+}
+function ghRepoParts(){
+  const parts = (ui.gh.repo || '').trim().replace(/^https?:\/\/github\.com\//i, '').replace(/\.git$/, '').split('/');
+  if (parts.length !== 2 || !parts[0] || !parts[1]) return null;
+  return { owner: parts[0], repo: parts[1] };
+}
+function ghPath(){
+  return (ui.gh.path || GH_DEFAULT_PATH).trim().replace(/^\/+/, '');
+}
+async function ghRequest(url, opt){
+  const r = await fetch(url, opt);
+  if (!r.ok){
+    let m = '';
+    try { const j = await r.json(); m = j.message || ''; } catch(_){}
+    throw new Error('HTTP ' + r.status + (m ? ' · ' + m : ''));
+  }
+  return r;
+}
+async function ghBackup(){
+  const token = ui.gh.token.trim();
+  const rp = ghRepoParts();
+  if (!token){ toast('请先填写 GitHub Token'); return; }
+  if (!rp){ toast('请先填写仓库，格式：用户名/仓库名'); return; }
+  toast('正在备份…');
+  try {
+    const headers = {
+      Authorization: 'Bearer ' + token,
+      Accept: 'application/vnd.github+json',
+      'Content-Type': 'application/json',
+    };
+    const api = 'https://api.github.com/repos/' + rp.owner + '/' + rp.repo + '/contents/' + encodeURI(ghPath());
+    const branch = (ui.gh.branch || 'main').trim() || 'main';
+    const q = api + '?ref=' + encodeURIComponent(branch);
+    let sha = null;
+    const gr = await fetch(q, { headers: headers });
+    if (gr.status === 200){ sha = (await gr.json()).sha; }
+    else if (gr.status !== 404){ throw new Error('HTTP ' + gr.status + ' · 读取仓库失败，请检查仓库名与权限'); }
+    const put = await ghRequest(api, {
+      method: 'PUT',
+      headers: headers,
+      body: JSON.stringify({
+        message: '备份 ' + new Date().toLocaleString('zh-CN'),
+        content: b64enc(JSON.stringify(exportData())),
+        branch: branch,
+        sha: sha,
+      })
+    });
+    ui.gh.last = Date.now();
+    saveLocalCfg(); save(true); render();
+    toast('备份成功：已提交到 ' + rp.owner + '/' + rp.repo);
+  } catch(e){ toast('备份失败：' + e.message); }
+}
+async function ghRestore(){
+  const token = ui.gh.token.trim();
+  const rp = ghRepoParts();
+  if (!token){ toast('请先填写 GitHub Token'); return; }
+  if (!rp){ toast('请先填写仓库，格式：用户名/仓库名'); return; }
+  toast('正在读取…');
+  try {
+    const branch = (ui.gh.branch || 'main').trim() || 'main';
+    const api = 'https://api.github.com/repos/' + rp.owner + '/' + rp.repo + '/contents/' + encodeURI(ghPath())
+      + '?ref=' + encodeURIComponent(branch);
+    const r = await ghRequest(api, {
+      headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github.raw+json' }
+    });
+    const obj = JSON.parse(await r.text());
+    if (!obj || (!obj.items && !obj.activities && !obj.exchanges)) throw new Error('备份文件格式不正确');
+    const ok = await confirmDialog({ title:'恢复云端备份？', msg:'将覆盖本机数据：物料 '+(obj.items||[]).length+' 件 / 互换 '+(obj.exchanges||[]).length+' 笔', ok:'覆盖恢复', danger:true });
+    if (!ok) return;
+    applyImport(obj);
+    toast('已从 ' + rp.owner + '/' + rp.repo + ' 恢复');
+  } catch(e){ toast('恢复失败：' + e.message); }
+}
+function saveLocalCfg(){
+  try { localStorage.setItem('starmerch.cfg', JSON.stringify({ gh:ui.gh, theme:ui.theme })); } catch(_){}
+}
+function loadLocalCfg(){
+  try {
+    const c = JSON.parse(localStorage.getItem('starmerch.cfg') || '{}');
+    if (c.gh) ui.gh = Object.assign(ui.gh, c.gh);
+    if (c.theme) ui.theme = c.theme;
+  } catch(_){}
+}
+
+/* ---------- 主题 ---------- */
+const mq = (typeof window.matchMedia === 'function')
+  ? window.matchMedia('(prefers-color-scheme: dark)')
+  : { matches:false, addEventListener:function(){}, addListener:function(){} };
+function applyTheme(){
+  const dark = ui.theme === 'dark' || (ui.theme === 'auto' && mq.matches);
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  const m = document.querySelector('meta[name=theme-color]');
+  if (m) m.setAttribute('content', dark ? '#000000' : '#F2F2F7');
+}
+if (mq.addEventListener) mq.addEventListener('change', () => { if (ui.theme === 'auto') applyTheme(); });
+
+/* ---------- 图片处理 ---------- */
+function compressImage(file, maxSize, quality){
+  return new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.naturalWidth, h = img.naturalHeight;
+        const s = Math.min(1, maxSize / Math.max(w, h));
+        w = Math.max(1, Math.round(w * s)); h = Math.max(1, Math.round(h * s));
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        const x = c.getContext('2d');
+        x.fillStyle = '#fff'; x.fillRect(0, 0, w, h);
+        x.drawImage(img, 0, 0, w, h);
+        res(c.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => rej(new Error('图片读取失败'));
+      img.src = fr.result;
+    };
+    fr.onerror = () => rej(new Error('图片读取失败'));
+    fr.readAsDataURL(file);
+  });
+}
+
+/* ---------- 示例数据 ---------- */
+function seedData(){
+  const a1 = { id:uid(), name:'10月北京演唱会', date:'2026-10-24', city:'北京', type:'演唱会', venue:'国家体育馆', note:'', createdAt:Date.now() };
+  const a2 = { id:uid(), name:'11月上海见面会', date:'2026-11-08', city:'上海', type:'见面会', venue:'梅赛德斯中心', note:'', createdAt:Date.now() };
+  DB.activities = [a1, a2];
+  const t = Date.now();
+  const mk = o => Object.assign({ id:uid(), image:null, tags:[], cost:'', gotDate:'', factory:'', designer:'', artist:'', note:'', createdAt:t }, o);
+  DB.items = [
+    mk({ name:'团体手幅', category:'手幅', activityIds:[a1.id], planQty:100, madeQty:100, cost:4.5, status:'已完成', gotDate:'2026-10-10', factory:'快印工厂', designer:'小美', tags:['自用','互换'], note:'280g铜版纸，覆哑膜' }),
+    mk({ name:'生日灯牌', category:'亚克力', activityIds:[a1.id], planQty:30, madeQty:20, cost:26, status:'制作中', factory:'亚克力厂', artist:'阿画', tags:['互换'], note:'双面UV印刷' }),
+    mk({ name:'限定小卡套组', category:'小卡', activityIds:[a1.id], planQty:60, madeQty:60, cost:3, status:'已完成', gotDate:'2026-10-08', tags:['稀有','互换'], note:'6张一套' }),
+    mk({ name:'透明贴纸', category:'贴纸', activityIds:[a1.id], planQty:200, madeQty:200, cost:1.2, status:'已完成', gotDate:'2026-10-05', tags:['互换','赠品'] }),
+    mk({ name:'手幅挂绳', category:'手绳', activityIds:[a1.id], planQty:50, madeQty:0, cost:6, status:'企划中', tags:['自用'], note:'等设计稿确认' }),
+    mk({ name:'见面会立牌', category:'立牌', activityIds:[a2.id], planQty:40, madeQty:0, cost:18, status:'设计中', tags:['互换'] }),
+    mk({ name:'猫耳徽章', category:'徽章', activityIds:[a2.id], planQty:80, madeQty:0, cost:8, status:'打样中', factory:'徽章厂', tags:['稀有'], note:'等打样确认色差' }),
+    mk({ name:'通用感谢卡', category:'明信片', activityIds:[], planQty:150, madeQty:150, cost:0.8, status:'已完成', gotDate:'2026-09-28', tags:['赠品'], note:'不挂活动，长期通用' }),
+    mk({ name:'应援扇', category:'扇子', activityIds:[a1.id, a2.id], planQty:120, madeQty:60, cost:9, status:'制作中', factory:'扇厂', designer:'小美', artist:'阿画', tags:['互换'], note:'两个活动通用' }),
+  ];
+  DB.exchanges = [
+    { id:uid(), partner:'小鹿的站子', activityId:a1.id, date:'2026-10-12', status:'已完成', tracking:'SF1234567890', tags:['顺丰'], note:'互相补差价',
+      give:[{itemId:DB.items[0].id, qty:3},{itemId:DB.items[2].id, qty:1}],
+      receive:[{name:'对方限定亚克力', qty:1, image:''},{name:'猫耳徽章', qty:2, image:''}], createdAt:t },
+    { id:uid(), partner:'阿柚', activityId:a1.id, date:'2026-10-14', status:'待寄出', tracking:'YT7788990011', tags:['顺丰'], note:'',
+      give:[{itemId:DB.items[3].id, qty:10}],
+      receive:[{name:'韩版小卡', qty:4, image:''},{name:'镭射贴纸', qty:6, image:''}], createdAt:t },
+    { id:uid(), partner:'橙子酱', activityId:a1.id, date:'2026-10-15', status:'待面交', tracking:'', tags:['面交'], note:'演唱会现场面交',
+      give:[{itemId:DB.items[0].id, qty:2},{itemId:DB.items[3].id, qty:5}],
+      receive:[{name:'应援扇', qty:1, image:''}], createdAt:t },
+    { id:uid(), partner:'Momo', activityId:a2.id, date:'2026-11-01', status:'待寄出', tracking:'', tags:[], note:'等立牌做好再寄',
+      give:[{itemId:DB.items[5].id, qty:2}],
+      receive:[{name:'签名拍立得', qty:1, image:''}], createdAt:t },
+    { id:uid(), partner:'小鹿的站子', activityId:a2.id, date:'2026-11-05', status:'待面交', tracking:'', tags:['面交'], note:'',
+      give:[{itemId:DB.items[6].id, qty:4}],
+      receive:[{name:'手幅挂绳', qty:2, image:''}], createdAt:t },
+  ];
+  save(true); render();
+  toast('示例数据已载入');
+}
+
+/* =========================================================
+   事件
+   ========================================================= */
+let actionSave = null;
+
+document.addEventListener('click', async (ev) => {
+  const saveBtn = ev.target.closest('#sheet-save');
+  if (saveBtn){
+    const m = saveBtn.dataset.mode;
+    if (m === 'act') saveActivity();
+    else if (m === 'editex') startEditExchange(saveBtn.dataset.id);
+    else if (m === 'close') closeSheet();
+    else if (actionSave) actionSave();
+    return;
+  }
+  const btn = ev.target.closest('[data-act]');
+  if (!btn) return;
+  const act = btn.dataset.act;
+  const id = btn.dataset.id;
+
+  switch(act){
+    /* 导航与筛选 */
+    case 'go-library': ui.tab='library'; render(); return;
+    case 'lib-act':  ui.lib.act = btn.dataset.v; render(); return;
+    case 'lib-cat':  ui.lib.cat = btn.dataset.v; render(); return;
+    case 'lib-tag':  ui.lib.tag = btn.dataset.v; render(); return;
+    case 'lib-group':ui.lib.group = btn.dataset.v; render(); return;
+    case 'plan-group': ui.plan.group = btn.dataset.v; render(); return;
+    case 'plan-cat': ui.plan.cat = btn.dataset.v; render(); return;
+    case 'plan-act': ui.plan.act = btn.dataset.v; render(); return;
+    case 'plan-status': ui.plan.status = btn.dataset.v; render(); return;
+    case 'ex-group': ui.ex.group = btn.dataset.v; render(); return;
+    case 'ex-act':   ui.ex.act = btn.dataset.v; render(); return;
+    case 'ex-status':ui.ex.status = btn.dataset.v; render(); return;
+    case 'ex-tag':   ui.ex.tag = btn.dataset.v; render(); return;
+    case 'theme':    ui.theme = btn.dataset.v; applyTheme(); saveLocalCfg(); render(); return;
+
+    /* 物料 */
+    case 'lib-new':
+      draft = { image:null, activityIds:[] };
+      openSheet('新建物料', itemFormHTML({ name:'', category:'', status:(DB.statuses[0]||{}).k||'', tags:[], image:null, planQty:0, madeQty:0, cost:'', gotDate:'' }), '创建');
+      bindItemForm(); return;
+    case 'open-item': openItemDetail(id); return;
+    case 'edit-item': {
+      const it = itemById(id); if (!it) return;
+      draft = Object.assign({ activityIds: actsOf(it).slice() }, it);
+      openSheet('编辑物料', itemFormHTML(it), '保存');
+      bindItemForm(); return;
+    }
+    case 'del-item': {
+      const ok = await confirmDialog({ title:'删除物料？', msg:'该物料的图片会一并删除，互换记录中的相关明细也会移除。', ok:'删除', danger:true });
+      if (!ok) return;
+      DB.items = DB.items.filter(x => x.id !== id);
+      DB.exchanges.forEach(e => { e.give = (e.give||[]).filter(l => l.itemId !== id); });
+      save(); closeSheet(); render(); toast('已删除');
+      return;
+    }
+    case 'img-clear':
+      if (draft){ draft.image = null; refreshItemImage(); }
+      return;
+    case 'pick-act': {
+      if (!draft) return;
+      const v = btn.dataset.v;
+      draft.activityIds = draft.activityIds || [];
+      const i = draft.activityIds.indexOf(v);
+      if (i >= 0) draft.activityIds.splice(i, 1); else draft.activityIds.push(v);
+      btn.classList.toggle('on', draft.activityIds.includes(v));
+      return;
+    }
+    case 'bump': {
+      const it = itemById(id); if (!it) return;
+      it.madeQty = Math.max(0, num(it.madeQty) + num(btn.dataset.d));
+      if (num(it.planQty) > 0 && it.madeQty >= num(it.planQty) && it.status !== '已完成') it.status = '已完成';
+      save(); render(true); return;
+    }
+    case 'pick-status': openStatusPicker(id, DB.statuses, 'set-status'); return;
+    case 'set-status': {
+      const it = itemById(id);
+      if (it){ it.status = btn.dataset.v; save(); }
+      closeSheet(); render(); toast('状态已更新：' + btn.dataset.v);
+      return;
+    }
+
+    /* 互换 */
+    case 'ex-new':
+      draft = { give:[{ itemId:'', qty:1 }], receive:[{ name:'', qty:1, image:'' }],
+                date:todayStr(), status:'待面交', partner:'', activityId:'', tracking:'' };
+      openSheet('新建互换记录', exFormHTML({ status:'待面交' }), '记录');
+      bindExForm(); return;
+    case 'open-ex': openExDetail(id); return;
+    case 'ex-complete': {
+      const e = DB.exchanges.find(x => x.id === id); if (!e) return;
+      e.status = '已完成'; e.tracking = '';
+      save(); closeSheet(); render(); toast('已完成 ✓');
+      return;
+    }
+    case 'pick-ex-status': openStatusPicker(id, EX_STATUS, 'set-ex-status'); return;
+    case 'set-ex-status': {
+      const e = DB.exchanges.find(x => x.id === id);
+      if (e){ e.status = btn.dataset.v; if (e.status !== '待寄出') e.tracking = ''; save(); }
+      closeSheet(); render(); toast('状态已更新：' + btn.dataset.v);
+      return;
+    }
+    case 'edit-ex': startEditExchange(id); return;
+    case 'del-ex': {
+      const ok = await confirmDialog({ title:'删除这条互换记录？', msg:'删除后不可恢复。', ok:'删除', danger:true });
+      if (!ok) return;
+      DB.exchanges = DB.exchanges.filter(x => x.id !== id);
+      save(); closeSheet(); render(); toast('已删除');
+      return;
+    }
+    case 'line-add':
+      if (!draft) return;
+      draft[btn.dataset.side].push(btn.dataset.side === 'give' ? { itemId:'', qty:1 } : { name:'', qty:1, image:'' });
+      rerenderLines(btn.dataset.side); return;
+    case 'line-del': {
+      if (!draft) return;
+      const s = btn.dataset.side;
+      draft[s].splice(num(btn.dataset.idx), 1);
+      if (!draft[s].length) draft[s].push(s === 'give' ? { itemId:'', qty:1 } : { name:'', qty:1, image:'' });
+      rerenderLines(s); return;
+    }
+    case 'rx-img': {
+      const inp = document.getElementById('rx-img-input');
+      if (!inp) return;
+      rxTarget = num(btn.dataset.idx);
+      inp.click();
+      return;
+    }
+
+    /* 活动 */
+    case 'new-act':
+      draft = {};
+      openSheet('新建活动', actFormHTML({}), '创建');
+      $('#sheet-save').dataset.mode = 'act';
+      return;
+    case 'edit-act': {
+      const a = actRaw(id); if (!a) return;
+      draft = a;
+      openSheet('编辑活动', actFormHTML(a), '保存');
+      $('#sheet-save').dataset.mode = 'act';
+      return;
+    }
+    case 'del-act': {
+      const a = actRaw(id); if (!a) return;
+      const n = DB.items.filter(i => actsOf(i).includes(id)).length + DB.exchanges.filter(x => x.activityId === id).length;
+      const ok = await confirmDialog({ title:'删除活动？', msg:'有 ' + n + ' 条数据挂在该活动下。删除后物料会取消该归属、互换变为「未挂活动」，不会被删除。', ok:'删除活动', danger:true });
+      if (!ok) return;
+      DB.activities = DB.activities.filter(x => x.id !== id);
+      DB.items.forEach(i => { i.activityIds = (i.activityIds||[]).filter(x => x !== id); });
+      DB.exchanges.forEach(x => { if (x.activityId === id) x.activityId = ''; });
+      save(); closeSheet(); render(); toast('已删除');
+      return;
+    }
+
+    /* 选项管理 */
+    case 'act-expand': ui.actExpand = !ui.actExpand; render(); return;
+    case 'mgr-cat': openCatMgr(); return;
+    case 'cat-add': {
+      const inp = document.getElementById('new-cat');
+      const v = inp ? inp.value.trim() : '';
+      if (!v){ toast('请输入类别名称'); return; }
+      if (DB.categories.includes(v)){ toast('该类别已存在'); return; }
+      DB.categories.push(v); save();
+      openCatMgr(); toast('已添加「' + v + '」');
+      return;
+    }
+    case 'cat-del': {
+      const v = btn.dataset.v;
+      DB.categories = DB.categories.filter(x => x !== v);
+      save(); openCatMgr(); return;
+    }
+    case 'mgr-status': openStatusMgr(); return;
+    case 'st-add': {
+      const used = DB.statuses.map(s => s.c);
+      const c = PALETTE.find(x => used.indexOf(x) < 0) || PALETTE[DB.statuses.length % PALETTE.length];
+      DB.statuses.push({ k:'新状态', c:c });
+      save(); renderStatusMgr(); return;
+    }
+    case 'st-del': {
+      const i = num(btn.dataset.i);
+      const s = DB.statuses[i]; if (!s) return;
+      if (DB.statuses.length <= 1){ toast('至少保留一个状态'); return; }
+      DB.items.forEach(it => { if (it.status === s.k) it.status = DB.statuses[0].k; });
+      DB.statuses.splice(i, 1);
+      save(); renderStatusMgr(); return;
+    }
+    case 'st-color': openPalette(num(btn.dataset.i)); return;
+    case 'st-setcolor': {
+      const i = num(btn.dataset.i);
+      if (DB.statuses[i]){ DB.statuses[i].c = btn.dataset.c; save(); }
+      openStatusMgr();
+      return;
+    }
+
+    /* 弹层与数据 */
+    case 'closeSheet': closeSheet(); return;
+    case 'closeDialog': if (dlgDone) dlgDone(false); return;
+    case 'export': doExport(); return;
+    case 'import': doImport(); return;
+    case 'gh-backup': ghBackup(); return;
+    case 'gh-restore': ghRestore(); return;
+    case 'seed': {
+      if (DB.items.length || DB.activities.length){
+        const ok = await confirmDialog({ title:'载入示例数据？', msg:'会覆盖当前本机数据。', ok:'载入', danger:true });
+        if (!ok) return;
+      }
+      seedData(); return;
+    }
+    case 'clear': {
+      const ok = await confirmDialog({ title:'清空全部数据？', msg:'将删除本机所有物料、活动与互换记录，且无法撤销。建议先导出备份。', ok:'确认清空', danger:true });
+      if (!ok) return;
+      DB = { version:2, activities:[], items:[], exchanges:[], categories:DEFAULT_CATEGORIES.slice(), statuses:JSON.parse(JSON.stringify(DEFAULT_STATUSES)) };
+      save(true); render(); toast('已清空');
+      return;
+    }
+  }
+});
+
+document.addEventListener('change', (ev) => {
+  const t = ev.target;
+  const act = t.dataset && t.dataset.act;
+  if (!act) return;
+  if (act === 'line-pick'){
+    if (!draft) return;
+    draft[t.dataset.side][num(t.dataset.idx)].itemId = t.value;
+    rerenderLines(t.dataset.side);
+  }
+  if (act === 'st-name'){
+    const i = num(t.dataset.i);
+    const s = DB.statuses[i];
+    if (!s) return;
+    const nv = t.value.trim();
+    if (!nv){ t.value = s.k; return; }
+    if (DB.statuses.some((x,xi) => xi !== i && x.k === nv)){ toast('状态名重复'); t.value = s.k; return; }
+    const old = s.k;
+    s.k = nv;
+    DB.items.forEach(it => { if (it.status === old) it.status = nv; });
+    save();
+  }
+});
+
+document.addEventListener('input', (ev) => {
+  const t = ev.target;
+  if (t.dataset && t.dataset.input === 'lib-q'){ ui.lib.q = t.value; softRender(t); return; }
+  if (t.dataset && t.dataset.input === 'plan-q'){ ui.plan.q = t.value; softRender(t); return; }
+  if (t.dataset && t.dataset.input === 'ex-q'){ ui.ex.q = t.value; softRender(t); return; }
+  if (t.dataset && t.dataset.input === 'gh-token'){ ui.gh.token = t.value; saveLocalCfg(); return; }
+  if (t.dataset && t.dataset.input === 'gh-repo'){ ui.gh.repo = t.value; saveLocalCfg(); return; }
+  if (t.dataset && t.dataset.input === 'gh-branch'){ ui.gh.branch = t.value; saveLocalCfg(); return; }
+  if (t.dataset && t.dataset.input === 'gh-path'){ ui.gh.path = t.value; saveLocalCfg(); return; }
+  const act = t.dataset && t.dataset.act;
+  if (act === 'line-qty' && draft){ draft[t.dataset.side][num(t.dataset.idx)].qty = num(t.value); return; }
+  if (act === 'line-name' && draft){ draft[t.dataset.side][num(t.dataset.idx)].name = t.value; return; }
+});
+
+let softTimer = null;
+function softRender(inputEl){
+  const val = inputEl.value, sel = inputEl.selectionStart;
+  clearTimeout(softTimer);
+  softTimer = setTimeout(() => {
+    render(true);
+    const again = document.querySelector('[data-input="' + inputEl.dataset.input + '"]');
+    if (again){ again.value = val; again.focus(); try{ again.setSelectionRange(sel, sel); }catch(_){} }
+  }, 220);
+}
+
+function refreshItemImage(){
+  const ph = document.getElementById('img-ph');
+  if (ph) ph.innerHTML = (draft && draft.image) ? '<img src="'+draft.image+'">' : '＋';
+}
+function bindItemForm(){
+  actionSave = saveItem;
+  const sb = $('#sheet-save'); if (sb) sb.dataset.mode = 'item';
+  const inp = document.getElementById('img-input');
+  if (inp) inp.onchange = async () => {
+    const f = inp.files && inp.files[0];
+    inp.value = '';
+    if (!f) return;
+    if (f.size > 12 * 1024 * 1024){ toast('图片过大，请选择 12MB 以内的图片'); return; }
+    try {
+      const d = await compressImage(f, 720, 0.75);
+      draft.image = d;
+      refreshItemImage();
+      const b = document.getElementById('img-btn');
+      if (b) b.textContent = '更换物料图';
+    } catch(e){ toast('图片处理失败'); }
+  };
+  const pick = document.getElementById('img-ph');
+  if (pick) pick.onclick = () => inp && inp.click();
+  const pb = document.getElementById('img-btn');
+  if (pb) pb.onclick = () => inp && inp.click();
+}
+
+/* ---------- 初始化 ---------- */
+async function init(){
+  loadLocalCfg();
+  applyTheme();
+  $('#tabbar').innerHTML = tabbarHTML();
+  $('#tabbar').addEventListener('click', ev => {
+    const b = ev.target.closest('button[data-tab]');
+    if (!b) return;
+    ui.tab = b.dataset.tab; render();
+  });
+  const saved = await Store.get();
+  if (saved && typeof saved === 'object'){
+    DB.activities = saved.activities || [];
+    DB.items = saved.items || [];
+    DB.exchanges = saved.exchanges || [];
+    DB.categories = saved.categories || [];
+    DB.statuses = saved.statuses || [];
+  }
+  normalize();
+  render();
+}
+init();
+</script>
+</body>
+</html>
