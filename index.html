@@ -55,7 +55,8 @@ a{color:var(--blue);text-decoration:none}
 ::-webkit-scrollbar{width:0;height:0}
 
 /* ============ 布局 ============ */
-#app{max-width:540px;margin:0 auto;min-height:100vh;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+/* 底部留白 = 标签栏实际高度（50px 按钮 + 1px 分隔线）+ 16px 呼吸位 + 安全区 */
+#app{max-width:540px;margin:0 auto;min-height:100vh;padding-bottom:calc(67px + env(safe-area-inset-bottom))}
 .hd{
   background:var(--nav);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
   border-bottom:none;
@@ -67,7 +68,7 @@ a{color:var(--blue);text-decoration:none}
 /* 顶部只固定「标题条」；搜索/分段/筛选项（.hd-filters）随页面滚动移出，不固定 */
 .hd.sticky-top{
   position:sticky;top:0;z-index:22;
-  padding-bottom:2px;
+  padding-bottom:12px;
 }
 .hd.sticky-top::after{
   content:"";position:absolute;left:0;right:0;bottom:0;height:.5px;background:var(--sep);pointer-events:none;
@@ -245,8 +246,9 @@ button.pill:active{opacity:.75}
   display:flex;padding-bottom:env(safe-area-inset-bottom);
 }
 .tabbar button{
-  flex:1;height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  flex:1;height:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
   color:var(--txt2);font-size:10px;font-weight:500;
+  padding-top:2px;
 }
 .tabbar button.on{color:var(--blue)}
 .tabbar svg{width:25px;height:25px}
