@@ -4,16 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#F2F2F7">
-<title>追星物料管理台</title>
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F8F8F8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#171719" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-title" content="物料箱">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAABWGlDQ1BJQ0MgUHJvZmlsZQAAeJx9kLFLw1AQxr9WpaB1EB0cHDKJQ5SSCro4tBVEcQhVweqUvqapkMZHkiIFN/+Bgv+BCs5uFoc6OjgIopPo5uSk4KLleS+JpCJ6j+N+fO+74zggOW5wbvcDqDu+W1zKK5ulLSX1jAS9IAzm8Zyur0r+rj/j/T703k7LWb///43Biukxqp+UGcZdH0ioxPqezyXvE4+5tBRxS7IV8onkcsjngWe9WCC+JlZYzagQvxCr5R7d6uG63WDRDnL7tOlsrMk5lBNYxA48cNgw0IQCHdk//LOBv4BdcjfhUp+FGnzqyZEiJ5jEy3DAMAOVWEOGUpN3ju53F91PjbWDJ2ChI4S4iLWVDnA2Rydrx9rUPDAyBFy1ueEagdRHmaxWgddTYLgEjN5Qz7ZXzWrh9uk8MPAoxNskkDoEui0hPo6E6B5T8wNw6XwBA6diE8HYWhMAAAPYSURBVHjatVZNb9w2EH1vOJL2Ixs7AZoW7aGX/v+fkUPRW29tDdhBEtd1YdhZ75dE8vUgrVZa24FjoIRAQaRm5nE4b2b4/iwa0SSsakF4/tB+dsMPr3m/w+1G1m+zexuBlBEMlX+T/oOeLNyusanFXi+7iYAnaV2DRDAYhzYIqJ3ZyWkAnzz8p1UNgCTY7bTGSMg3DbIAIeUjaBp74nhXYI/H+ECwMwaP6Wsu/vot6InfOVi246UnHE28ZBCw0g8AyE7X0fOtY3gcnzglAQiGOiK/CKnGODhYdxKzkgC2jbLwshGIkezAmrWfKWMX8biDnnr2GIPh3YKLCfXYdXn7GQylo46PX9RXHN0SbRcRU6e/32gFPQubRkYEHhENT3j1EcM3a3HPhp6BLbF9GxXz4aI41iXASEnqJXXAfohFQoB0YBwJkoA8ZQSidE4LxIRVPUoGJ1M0ERlMWXWEkVWByrFp1GRMnCQ2jQJRFQzELqLw9kYFqAgwI0nWSZMCkxKCSJnBDPNKlWObEbO+PwmzikKus4oCp3MDkCEzkABJ8vVUIJqoaYFZwVnJWUkzgxEGSMiCB15eXl5dXX3+9Ilpu1xvz88/QPjt97/Wy1sqXV//e3bx99n5x3p7j5z+OLsw6vziw9U/16t1XTlKx7oWiVmJIsAMIuWBwaiswoMZl/fL1f2yKj0Ldb2rynCymP15/tHdJlVxe7e8+3LvVFn6erN149vTxcXHz02Ms9Iqp5FFgJGBdDNICEQwZIDSd28Wk6rIKU0rv1vVr+az2NQ/vTuNCbFpTl/PlZpZyTeLKqb0ajYl8nw2+eXnH1OKTUbKmpYkkbKKQL4/i1koA97O+WWrJmEx4ZctAM5LBdNyy3kpozYx5JzbtH8yhRE3q2xGScp6u3A33dznqmCg1jWCwY389TxKcINZF6oa1IbSu8hrEgCxDVWhvbmUu9g1MlhXl0hkdSFLwgvrQrhVSgGEhwNL1a4YuadQX+qKMCwO7LjSqjYYZYQXgRrXjp5sxIiZD1k65NpBirB2JmlwD5D2rH1go6tb3EOzUZ7gEZq2nLDVjvbM7gZBEvUg37aSu6htDRISZiUmBY/wjs9K7s0YYZQXAVlsD6EH6AzI4qZWUpcNi9AmmYFSjQCBavOQQSTdjBTadDZE3wN5FQRwtdOkwLxiEdj3DY8mc+5DpdNweZeyiEFXxw7FIQQBxQyij67WQeLTBXvvOnogjSP87N8UO2308ADlM9oBAm4GoL3hvinjEOdIEYe18lnD7RAHR2E9bqC+pY4Of3BSL+jq9OxGxvE/jEOrTPwHLp7QnKMSGJMAAAAASUVORK5CYII=">
+<title>物料箱</title>
 <style>
 /* ============ 主题变量 ============ */
 :root{
   --bg:#F2F2F7; --bg-elev:#FFFFFF; --card:#FFFFFF;
   --txt:#000000; --txt2:#8E8E93; --txt3:#C7C7CC;
   --sep:rgba(60,60,67,.13); --fill:rgba(118,118,128,.12);
-  --nav:rgba(249,249,249,.80); --mask:rgba(0,0,0,.40);
+  --nav:rgba(249,249,249,.80); --nav-solid:#F8F8F8; --mask:rgba(0,0,0,.40);
   --blue:#007AFF; --green:#34C759; --orange:#FF9500; --red:#FF3B30;
   --purple:#AF52DE; --indigo:#5856D6; --teal:#30B0C7; --pink:#FF2D55;
   --radius:14px;
@@ -22,12 +28,14 @@ html[data-theme="dark"]{
   --bg:#000000; --bg-elev:#1C1C1E; --card:#1C1C1E;
   --txt:#FFFFFF; --txt2:#8E8E93; --txt3:#48484A;
   --sep:rgba(84,84,88,.60); --fill:rgba(118,118,128,.24);
-  --nav:rgba(30,30,32,.78); --mask:rgba(0,0,0,.60);
+  --nav:rgba(30,30,32,.78); --nav-solid:#171719; --mask:rgba(0,0,0,.60);
   --blue:#0A84FF; --green:#30D158; --orange:#FF9F0A; --red:#FF453A;
   --purple:#BF5AF2; --indigo:#5E5CE6; --teal:#40C8E0; --pink:#FF375F;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
+/* 顶部状态栏/安全区配色：让最外层背景与顶栏同色，避免 iOS 状态栏色差 */
+html{background:var(--nav-solid)}
 body{
   background:var(--bg); color:var(--txt);
   font:400 16px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",Arial,sans-serif;
@@ -250,6 +258,32 @@ button.pill:active{opacity:.75}
 .grabber{width:36px;height:5px;border-radius:3px;background:var(--txt3);margin:8px auto 0;opacity:.6}
 .sheet-body{padding:16px}
 
+/* 字段快捷修改弹层（叠在详情弹层之上） */
+#field-root{position:fixed;inset:0;z-index:150;display:none}
+#field-root.open{display:block}
+#field-root .mask{position:absolute;inset:0;background:var(--mask);opacity:0;transition:opacity .22s}
+#field-root.show .mask{opacity:1}
+.field-sheet{
+  position:absolute;left:50%;bottom:0;transform:translate(-50%,100%);
+  width:100%;max-width:540px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  background:var(--bg);border-radius:18px 18px 0 0;
+  transition:transform .3s cubic-bezier(.32,.72,0,1);
+  padding-bottom:calc(20px + env(safe-area-inset-bottom));
+}
+#field-root.show .field-sheet{transform:translate(-50%,0)}
+.field-sheet .sheet-hd{display:flex;align-items:center;gap:8px;padding:14px 16px 6px}
+.field-sheet .sheet-hd .ttl{flex:1;font-size:17px;font-weight:700;text-align:center;letter-spacing:-.2px}
+.field-sheet .sheet-hd button{font-size:16px;color:var(--blue);font-weight:500;min-width:44px;text-align:left;background:none;border:0}
+.field-sheet .sheet-hd button.rt{text-align:right;font-weight:600}
+.field-sheet .sheet-hd button.ph{visibility:hidden;pointer-events:none}
+.field-body{padding:8px 16px 16px}
+/* 详情页可编辑行：可点视觉 */
+.kv.editable{cursor:pointer}
+.kv.editable:active{background:var(--fill)}
+.kv.editable .v::after{content:"›";margin-left:6px;color:var(--txt3);font-weight:400}
+.kv .v.placeholder{color:var(--txt3)}
+.hero-nm-edit{cursor:pointer}
+
 /* 表单 */
 .fieldset{background:var(--card);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
 .field{display:flex;align-items:center;gap:12px;padding:11px 14px;position:relative;min-height:48px}
@@ -385,13 +419,14 @@ html[data-theme="dark"] #toast{background:rgba(255,255,255,.92);color:#000}
   <nav class="tabbar" id="tabbar"></nav>
 </div>
 <div id="sheet-root"><div class="mask" data-act="closeSheet"></div><div class="sheet" id="sheet"></div></div>
+<div id="field-root"><div class="mask" data-act="closeField"></div><div class="field-sheet" id="field-sheet"></div></div>
 <div id="dialog-root"><div class="mask" data-act="closeDialog"></div><div class="dlg" id="dialog"></div></div>
 <div id="toast"></div>
 
 <script>
 /* =========================================================
-   追星物料管理台  v2.0
-   物料库 / 企划制作 / 互换记录 + 设置
+   物料箱  v2.0
+   物料箱 / 制作 / 互换 + 设置
    ========================================================= */
 
 /* ---------- 常量 ---------- */
@@ -593,15 +628,15 @@ function render(keepScroll){
 
 function tabbarHTML(){
   const T = [
-    {k:'library', n:'物料库', p:'M4 5.5h6v6H4zM14 5.5h6v6h-6zM4 14.5h6v5H4zM14 14.5h6v5h-6z'},
-    {k:'plan',    n:'企划制作', p:'M9.5 6H20M9.5 12H20M9.5 18H20M4 6l.9 1L7 5M4 12l.9 1L7 11M4 18l.9 1L7 17'},
+    {k:'library', n:'物料箱', p:'M4 5.5h6v6H4zM14 5.5h6v6h-6zM4 14.5h6v5H4zM14 14.5h6v5h-6z'},
+    {k:'plan',    n:'制作', p:'M9.5 6H20M9.5 12H20M9.5 18H20M4 6l.9 1L7 5M4 12l.9 1L7 11M4 18l.9 1L7 17'},
     {k:'exchange',n:'互换', p:'M4 8h13l-3.2-3.2M20 16H7l3.2 3.2'},
     {k:'settings',n:'设置', p:'M12 15a3 3 0 100-6 3 3 0 000 6zM19.1 14.6a1.6 1.6 0 00.3 1.8l.1.1a1.9 1.9 0 11-2.7 2.7l-.1-.1a1.6 1.6 0 00-1.8-.3 1.6 1.6 0 00-1 1.5v.2a1.9 1.9 0 11-3.8 0v-.1a1.6 1.6 0 00-1-1.5 1.6 1.6 0 00-1.8.3l-.1.1a1.9 1.9 0 11-2.7-2.7l.1-.1a1.6 1.6 0 00.3-1.8 1.6 1.6 0 00-1.5-1H3a1.9 1.9 0 110-3.8h.1a1.6 1.6 0 001.5-1 1.6 1.6 0 00-.3-1.8l-.1-.1a1.9 1.9 0 112.7-2.7l.1.1a1.6 1.6 0 001.8.3h.1a1.6 1.6 0 001-1.5V3a1.9 1.9 0 113.8 0v.1a1.6 1.6 0 001 1.5 1.6 1.6 0 001.8-.3l.1-.1a1.9 1.9 0 112.7 2.7l-.1.1a1.6 1.6 0 00-.3 1.8v.1a1.6 1.6 0 001.5 1h.2a1.9 1.9 0 110 3.8h-.1a1.6 1.6 0 00-1.5 1z'},
   ];
   return T.map(t => '<button data-tab="'+t.k+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="'+t.p+'"/></svg><span>'+t.n+'</span></button>').join('');
 }
 
-/* ---------- Tab1 物料库 ---------- */
+/* ---------- Tab1 物料箱 ---------- */
 function viewLibrary(){
   const q = ui.lib.q.trim().toLowerCase();
   const flow = exchangeFlow();
@@ -666,7 +701,7 @@ function viewLibrary(){
 
   return ''
   + '<div class="hd">'
-  +   '<div class="hd-row"><h1>物料库</h1>'
+  +   '<div class="hd-row"><h1>物料</h1>'
   +     '<button class="hd-btn" data-act="lib-new">＋ 新增</button></div>'
   +   '<div class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>'
   +     '<input type="search" placeholder="搜索物料名 / 标签 / 备注" value="'+esc(ui.lib.q)+'" data-input="lib-q"></div>'
@@ -695,7 +730,7 @@ function viewLibrary(){
   +     '<div class="stat"><b>'+totalPlan+'</b><span>计划</span></div>'
   +     '<div class="stat"><b style="color:var(--blue)">'+rest+'</b><span>可用余量</span></div>'
   +   '</div>'
-  +   (html || (DB.items.length ? '' : emptyState('还没有物料','点右上角「＋ 新增」创建第一件物料，\n上传图片、设置计划数量，之后在「企划制作」里推进进度。','新建物料','lib-new')))
+  +   (html || (DB.items.length ? '' : emptyState('还没有物料','点右上角「＋ 新增」创建第一件物料，\n上传图片、设置计划数量，之后在「制作」里推进进度。','新建物料','lib-new')))
   + '</div>';
 }
 
@@ -735,7 +770,7 @@ function thumbHTML(it, cls){
   return '<div class="thumb '+cls+'" style="background:'+pigment(it.name)+'">'+esc(ch)+'</div>';
 }
 
-/* ---------- Tab2 企划制作 ---------- */
+/* ---------- Tab2 制作 ---------- */
 function viewPlan(){
   const flow = exchangeFlow();
   const q = ui.plan.q.trim().toLowerCase();
@@ -762,7 +797,7 @@ function viewPlan(){
   if (!list.length){
     body = DB.items.length
       ? emptyState('没有匹配的物料','换个活动、状态或关键词筛选看看。','','')
-      : emptyState('还没有制作企划','先在「物料库」里创建物料，\n设置计划数量后，这里会按活动汇总制作进度。','去物料库','go-library');
+      : emptyState('还没有制作企划','先在「物料箱」里创建物料，\n设置计划数量后，这里会按活动汇总制作进度。','去物料箱','go-library');
   } else {
     const secs = [];
     if (ui.plan.act !== 'all'){
@@ -793,7 +828,7 @@ function viewPlan(){
 
   return ''
   + '<div class="hd">'
-  +   '<div class="hd-row"><h1>企划制作</h1>'
+  +   '<div class="hd-row"><h1>制作</h1>'
   +     '<button class="hd-btn" data-act="lib-new">＋ 新增</button></div>'
   +   '<div class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>'
   +     '<input type="search" placeholder="搜索物料名 / 标签 / 备注" value="'+esc(ui.plan.q)+'" data-input="plan-q"></div>'
@@ -844,7 +879,7 @@ function planCards(list, flow){
   }).join('') + '</div>';
 }
 
-/* ---------- Tab3 互换记录 ---------- */
+/* ---------- Tab3 互换 ---------- */
 function viewExchange(){
   const q = ui.ex.q.trim().toLowerCase();
   let list = DB.exchanges.slice();
@@ -879,7 +914,7 @@ function viewExchange(){
 
   return ''
   + '<div class="hd">'
-  +   '<div class="hd-row"><h1>互换记录</h1>'
+  +   '<div class="hd-row"><h1>互换</h1>'
   +     '<button class="hd-btn" data-act="ex-new">＋ 记录</button></div>'
   +   '<div class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>'
   +     '<input type="search" placeholder="搜索对象 / 备注 / 标签" value="'+esc(ui.ex.q)+'" data-input="ex-q"></div>'
@@ -1174,7 +1209,7 @@ function viewSettings(){
   +       '<svg class="chev" width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1.5 1.5L6 6.5l-4.5 5"/></svg></button>'
   +   '</div></div>'
 
-  + '<div class="setnote" style="text-align:center;margin-top:24px">追星物料管理台 v2.0<br>数据保存在本机浏览器，换设备请使用导出或 GitHub 备份</div>'
+  + '<div class="setnote" style="text-align:center;margin-top:24px">物料箱 v2.0<br>数据保存在本机浏览器，换设备请使用导出或 GitHub 备份</div>'
   + '</div>';
 }
 
@@ -1331,6 +1366,80 @@ function saveItem(){
   save(); closeSheet(); render();
 }
 
+/* ---------- 详情页字段快捷修改：分发器 ---------- */
+function handleFieldEdit(ds){
+  const type = ds.edit;          // 'item' | 'ex'
+  const id = ds.id;
+  const field = ds.field;        // 字段名
+  const refresh = () => { if (type === 'item') openItemDetail(id); else openExDetail(id); };
+
+  /* -------- 物料字段 -------- */
+  if (type === 'item'){
+    const it = itemById(id); if (!it) return;
+    const save1 = (patch) => { Object.assign(it, patch); save(); refresh(); };
+    switch(field){
+      case 'name':
+        return openFieldEditor({ title:'物料名称', kind:'text', value:it.name||'', placeholder:'如：团体手幅', required:true, onSave:v => save1({ name:v }) });
+      case 'category': {
+        const opts = DB.categories.map(c => ({ v:c, label:c }));
+        return openFieldEditor({ title:'类别', kind:'select', value:it.category||'', options:opts, onSave:v => save1({ category:v }) });
+      }
+      case 'status': {
+        const opts = DB.statuses.map(s => ({ v:s.k, label:s.k, hint:s.c }));
+        return openFieldEditor({ title:'制作状态', kind:'select', value:it.status||'', options:opts, onSave:v => save1({ status:v }) });
+      }
+      case 'activities': {
+        const opts = sortActs(DB.activities).map(a => ({ v:a.id, label:a.name }));
+        return openFieldEditor({ title:'所属活动（可多选）', kind:'multi', value:actsOf(it).slice(), options:opts, onSave:v => save1({ activityIds:v }) });
+      }
+      case 'planQty':
+        return openFieldEditor({ title:'计划数量', kind:'number', value:num(it.planQty), onSave:v => save1({ planQty:v }) });
+      case 'madeQty':
+        return openFieldEditor({ title:'已完成数量', kind:'number', value:num(it.madeQty), onSave:v => save1({ madeQty:v }) });
+      case 'cost':
+        return openFieldEditor({ title:'单件成本（元）', kind:'number', value:(it.cost===''||it.cost==null?'':it.cost), placeholder:'选填', onSave:v => save1({ cost:v }) });
+      case 'gotDate':
+        return openFieldEditor({ title:'到货日期', kind:'date', value:it.gotDate||'', onSave:v => save1({ gotDate:v }) });
+      case 'factory':
+        return openFieldEditor({ title:'工厂', kind:'text', value:it.factory||'', placeholder:'选填', onSave:v => save1({ factory:v }) });
+      case 'designer':
+        return openFieldEditor({ title:'美工', kind:'text', value:it.designer||'', placeholder:'选填', onSave:v => save1({ designer:v }) });
+      case 'artist':
+        return openFieldEditor({ title:'画师', kind:'text', value:it.artist||'', placeholder:'选填', onSave:v => save1({ artist:v }) });
+      case 'tags':
+        return openFieldEditor({ title:'标签', kind:'text', value:(it.tags||[]).join(', '), placeholder:'用逗号分隔，如：自用, 互换', onSave:v => save1({ tags: v.split(/[,，\s]+/).map(s=>s.replace(/^#/,'').trim()).filter(Boolean) }) });
+      case 'note':
+        return openFieldEditor({ title:'备注', kind:'textarea', value:it.note||'', placeholder:'设计说明、尺寸、注意事项…', onSave:v => save1({ note:v }) });
+    }
+    return;
+  }
+
+  /* -------- 互换字段 -------- */
+  if (type === 'ex'){
+    const e = DB.exchanges.find(x => x.id === id); if (!e) return;
+    const save1 = (patch) => { Object.assign(e, patch, { updatedAt: Date.now() }); save(); refresh(); };
+    switch(field){
+      case 'partner':
+        return openFieldEditor({ title:'互换对象', kind:'text', value:e.partner||'', placeholder:'对方昵称 / 站子名', required:true, onSave:v => save1({ partner:v }) });
+      case 'status':
+        return openFieldEditor({ title:'状态', kind:'select', value:e.status||'待寄出', options:EX_STATUS.map(s => ({ v:s.k, label:s.k, hint:s.c })), onSave:v => save1({ status:v, tracking: v==='待寄出' ? e.tracking : '' }) });
+      case 'activity': {
+        const opts = [{ v:'', label:'未挂活动' }].concat(sortActs(DB.activities).map(a => ({ v:a.id, label:a.name })));
+        return openFieldEditor({ title:'关联活动', kind:'select', value:e.activityId||'', options:opts, onSave:v => save1({ activityId:v }) });
+      }
+      case 'date':
+        return openFieldEditor({ title:'日期', kind:'date', value:e.date||'', onSave:v => save1({ date:v }) });
+      case 'tracking':
+        return openFieldEditor({ title:'快递单号', kind:'text', value:e.tracking||'', placeholder:'选填', onSave:v => save1({ tracking:v }) });
+      case 'tags':
+        return openFieldEditor({ title:'标签', kind:'text', value:(e.tags||[]).join(', '), placeholder:'用逗号分隔，如：顺丰, 面交', onSave:v => save1({ tags: v.split(/[,，\s]+/).map(s=>s.replace(/^#/,'').trim()).filter(Boolean) }) });
+      case 'note':
+        return openFieldEditor({ title:'备注', kind:'textarea', value:e.note||'', placeholder:'沟通进展、补寄安排…', onSave:v => save1({ note:v }) });
+    }
+    return;
+  }
+}
+
 /* ---------- 物料详情 ---------- */
 function openItemDetail(id){
   const it = itemById(id); if (!it) return;
@@ -1340,29 +1449,33 @@ function openItemDetail(id){
   const plan = num(it.planQty), made = num(it.madeQty), todo = Math.max(0, plan - made);
   const total = num(it.cost) * made;
   const related = DB.exchanges.filter(e => (e.give||[]).some(l => l.itemId === id));
-  const prod = [
-    it.factory ? '工厂 ' + it.factory : '',
-    it.designer ? '美工 ' + it.designer : '',
-    it.artist ? '画师 ' + it.artist : '',
-  ].filter(Boolean).join(' · ');
+
+  const E = (field) => 'class="kv editable" data-edit="item" data-id="'+id+'" data-field="'+field+'"';
+  const ph = (t) => '<span class="v placeholder">'+t+'</span>';
 
   const body = ''
   + '<div class="detail-hero">' + thumbHTML(it,'lg')
-  +   '<div class="meta"><div class="nm">'+esc(it.name||'未命名')+'</div>'
-  +   '<div style="margin-top:8px">'+pill(it.status||'', DB.statuses)+'</div>'
-  +   '<div class="tags">'+tagsHTML(it.tags)+'</div></div></div>'
+  +   '<div class="meta"><div class="nm" '+E('name')+'>'+esc(it.name||'未命名')+'</div>'
+  +   '<div style="margin-top:8px" '+E('status')+'>'+pill(it.status||'', DB.statuses)+'</div>'
+  +   '<div class="tags" '+E('tags')+'>'+(tagsHTML(it.tags) || ph('点击加标签'))+'</div></div></div>'
 
   + '<div class="fieldset">'
-  +   '<div class="kv"><span class="k">所属活动</span><span class="v">'+(actsOf(it).map(a => esc(actName(a))).join('、') || '未挂活动')+'</span></div>'
-  +   '<div class="kv"><span class="k">类别</span><span class="v">'+esc(it.category||'未分类')+'</span></div>'
-  +   '<div class="kv"><span class="k">制作进度</span><span class="v">已做 '+made+' / 计划 '+plan+' · 待做 '+todo+'</span></div>'
-  +   (it.cost!=='' && it.cost!=null ? '<div class="kv"><span class="k">单件成本 / 合计</span><span class="v">¥'+num(it.cost)+' / ¥'+total+'</span></div>' : '')
-  +   (it.gotDate ? '<div class="kv"><span class="k">到货日期</span><span class="v">'+fmtDate(it.gotDate)+'</span></div>' : '')
+  +   '<div '+E('activities')+'><span class="k">所属活动</span><span class="v'+(actsOf(it).length?'':' placeholder')+'">'+(actsOf(it).map(a => esc(actName(a))).join('、') || '未挂活动')+'</span></div>'
+  +   '<div '+E('category')+'><span class="k">类别</span><span class="v'+(it.category?'':' placeholder')+'">'+esc(it.category||'未分类')+'</span></div>'
+  +   '<div '+E('planQty')+'><span class="k">计划数量</span><span class="v">'+plan+' 件</span></div>'
+  +   '<div '+E('madeQty')+'><span class="k">已完成</span><span class="v">'+made+' 件 · 待做 '+todo+'</span></div>'
+  +   '<div '+E('cost')+'><span class="k">单件成本 / 合计</span><span class="v'+(it.cost!==''&&it.cost!=null?'':' placeholder')+'">'+(it.cost!==''&&it.cost!=null ? '¥'+num(it.cost)+' / ¥'+total : '未填写')+'</span></div>'
+  +   '<div '+E('gotDate')+'><span class="k">到货日期</span><span class="v'+(it.gotDate?'':' placeholder')+'">'+(it.gotDate ? fmtDate(it.gotDate) : '未填写')+'</span></div>'
   + '</div>'
 
-  + (prod ? '<div class="form-label">制作对接</div><div class="fieldset"><div class="kv"><span class="v" style="flex:1;text-align:left">'+esc(prod)+'</span></div></div>' : '')
+  + '<div class="form-label">制作对接</div>'
+  + '<div class="fieldset">'
+  +   '<div '+E('factory')+'><span class="k">工厂</span><span class="v'+(it.factory?'':' placeholder')+'">'+esc(it.factory||'未填写')+'</span></div>'
+  +   '<div '+E('designer')+'><span class="k">美工</span><span class="v'+(it.designer?'':' placeholder')+'">'+esc(it.designer||'未填写')+'</span></div>'
+  +   '<div '+E('artist')+'><span class="k">画师</span><span class="v'+(it.artist?'':' placeholder')+'">'+esc(it.artist||'未填写')+'</span></div>'
+  + '</div>'
 
-  + '<div class="form-label">互换情况</div>'
+  + '<div class="form-label">互换情况 <span class="hint">只读</span></div>'
   + '<div class="fieldset">'
   +   '<div class="kv"><span class="k">换出</span><span class="v" style="color:var(--orange)">'+f.out+' 件</span></div>'
   +   '<div class="kv"><span class="k">换入</span><span class="v" style="color:var(--blue)">'+f.in+' 件</span></div>'
@@ -1370,7 +1483,8 @@ function openItemDetail(id){
   +   '<div class="kv"><span class="k">涉及互换记录</span><span class="v">'+related.length+' 笔</span></div>'
   + '</div>'
 
-  + (it.note ? '<div class="form-label">备注</div><div class="fieldset"><div class="field col" style="padding:12px 14px;font-size:15px;line-height:1.6">'+esc(it.note).replace(/\n/g,'<br>')+'</div></div>' : '')
+  + '<div class="form-label">备注</div>'
+  + '<div class="fieldset"><div '+E('note')+' style="display:block"><span class="v'+(it.note?'':' placeholder')+'" style="display:block;text-align:left;line-height:1.6">'+(it.note ? esc(it.note).replace(/\n/g,'<br>') : '未填写')+'</span></div></div>'
 
   + '<div class="btn-group"><button class="btn ghost" data-act="pick-status" data-id="'+id+'">改状态</button>'
   +   '<button class="btn" data-act="edit-item" data-id="'+id+'">编辑</button></div>';
@@ -1390,6 +1504,111 @@ function openStatusPicker(id, list, act){
   openSheetRaw('修改状态', body);
 }
 
+/* ---------- 字段快捷修改弹层 ---------- */
+let fieldTimer = null;
+function closeField(){
+  const root = $('#field-root');
+  root.classList.remove('show');
+  clearTimeout(fieldTimer);
+  fieldTimer = setTimeout(() => { root.classList.remove('open'); $('#field-sheet').innerHTML=''; }, 280);
+}
+/* opt: {title, kind:'text'|'number'|'textarea'|'date'|'select'|'multi',
+        value, options:[{v,label,hint?}], placeholder, onSave(v)} */
+function openFieldEditor(opt){
+  const root = $('#field-root');
+  clearTimeout(fieldTimer);
+  const saveBtn = '<button class="rt" id="field-save">保存</button>';
+  const hd = '<div class="sheet-hd"><button data-act="closeField">取消</button>'
+    + '<span class="ttl">'+esc(opt.title||'修改')+'</span>'+saveBtn+'</div>';
+
+  let bodyInner = '';
+  if (opt.kind === 'select' || opt.kind === 'multi'){
+    const cur = opt.kind === 'multi'
+      ? (Array.isArray(opt.value) ? opt.value.slice() : [])
+      : { v: opt.value };
+    const rows = (opt.options||[]).map(o => {
+      const on = opt.kind === 'multi' ? cur.includes(o.v) : (cur.v === o.v);
+      return '<button class="row press field-opt" data-act="field-opt" data-v="'+esc(o.v)+'">'
+        + '<div class="row-main"><div class="row-title">'+ (o.hint ? '<span class="swatch" style="background:'+o.hint+';width:14px;height:14px"></span>' : '') + esc(o.label) +'</div></div>'
+        + '<span class="fo-check" style="color:var(--blue);font-size:18px">'+(on?'✓':'')+'</span>'
+        + '</button>';
+    }).join('');
+    bodyInner = '<div class="fieldset" id="field-opts">'+rows+'</div>';
+  } else if (opt.kind === 'textarea'){
+    bodyInner = '<div class="fieldset"><div class="field col"><textarea id="field-input" placeholder="'+esc(opt.placeholder||'')+'">'+esc(opt.value||'')+'</textarea></div></div>';
+  } else if (opt.kind === 'number'){
+    bodyInner = '<div class="fieldset"><div class="field"><input id="field-input" type="number" inputmode="numeric" min="0" placeholder="'+esc(opt.placeholder||'')+'" value="'+esc(opt.value==null?'':opt.value)+'"></div></div>';
+  } else if (opt.kind === 'date'){
+    bodyInner = '<div class="fieldset"><div class="field tap-date" data-date-for="field-input"><label>日期</label>'
+      + '<input type="date" id="field-input" value="'+esc(opt.value||'')+'" style="text-align:right"></div></div>';
+  } else {
+    bodyInner = '<div class="fieldset"><div class="field"><input id="field-input" placeholder="'+esc(opt.placeholder||'')+'" value="'+esc(opt.value||'')+'" autocomplete="off"></div></div>';
+  }
+
+  $('#field-sheet').innerHTML = '<div class="grabber"></div>' + hd + '<div class="field-body">' + bodyInner + '</div>';
+  root.classList.add('open');
+  requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add('show')));
+
+  // 暂存当前选择（多选/单选）
+  const state = { kind: opt.kind, opt, sel: opt.kind === 'multi' ? (Array.isArray(opt.value)?opt.value.slice():[]) : opt.value,
+                  multiOpts: opt.kind === 'multi' ? opt.options : null };
+
+  const doSave = () => {
+    if (state.kind === 'select'){
+      opt.onSave(state.sel);
+    } else if (state.kind === 'multi'){
+      opt.onSave(state.sel.slice());
+    } else {
+      const el = document.getElementById('field-input');
+      const raw = el ? el.value.trim() : '';
+      if (state.kind === 'number'){
+        if (raw === ''){ toast('请输入数字'); return; }
+        const v = Number(raw);
+        if (!isFinite(v) || v < 0){ toast('请输入 0 或正数'); return; }
+        opt.onSave(v);
+      } else {
+        if (opt.required && !raw){ toast('不能为空'); return; }
+        opt.onSave(raw);
+      }
+    }
+    closeField();
+  };
+
+  const sb = document.getElementById('field-save');
+  if (sb) sb.onclick = doSave;
+  // 日期整行可点
+  const dRow = document.querySelector('#field-sheet .field.tap-date');
+  if (dRow){
+    dRow.addEventListener('click', () => {
+      const inp = document.getElementById(dRow.dataset.dateFor);
+      if (inp){ inp.focus(); if (typeof inp.showPicker === 'function'){ try { inp.showPicker(); } catch(_){} } }
+    });
+  }
+  // 选项行点击
+  document.querySelectorAll('#field-sheet .field-opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const v = btn.dataset.v;
+      if (state.kind === 'multi'){
+        const i = state.sel.indexOf(v);
+        if (i >= 0) state.sel.splice(i,1); else state.sel.push(v);
+        btn.querySelector('.fo-check').textContent = state.sel.includes(v) ? '✓' : '';
+      } else {
+        state.sel = v;
+        document.querySelectorAll('#field-sheet .field-opt').forEach(b => {
+          b.querySelector('.fo-check').textContent = (b.dataset.v === v) ? '✓' : '';
+        });
+        doSave(); // 单选：点即保存
+      }
+    });
+  });
+  // 文本/数字/多行：回车保存
+  const inp = document.getElementById('field-input');
+  if (inp && state.kind !== 'textarea'){
+    inp.addEventListener('keydown', ev => { if (ev.key === 'Enter'){ ev.preventDefault(); doSave(); } });
+  }
+  if (state.kind === 'multi'){ /* 多选需点右上角保存 */ }
+}
+
 /* =========================================================
    互换表单
    ========================================================= */
@@ -1403,7 +1622,7 @@ function exFormHTML(e){
   + '<div class="fieldset">'
   +   '<div class="field"><label class="req">互换对象</label><input id="f-partner" placeholder="对方昵称 / 站子名" value="'+esc(e.partner)+'" autocomplete="off"></div>'
   +   '<div class="field"><label>关联活动</label><select id="f-act">'+actOpts+'</select><span class="sel-arrow">›</span></div>'
-  +   '<div class="field tap-date" data-date-for="f-date"><label>日期</label><input type="date" id="f-date" value="'+esc(e.date||todayStr())+'" style="text-align:right"><span class="suffix" style="flex:0 0 auto">随活动</span></div>'
+  +   '<div class="field tap-date" data-date-for="f-date"><label>日期</label><input type="date" id="f-date" value="'+esc(e.date||todayStr())+'" style="text-align:right"></div>'
   +   '<div class="field"><label>状态</label><select id="f-status">'+stOpts+'</select><span class="sel-arrow">›</span></div>'
   +   '<div class="field" id="track-wrap" style="display:'+(showTrack?'':'none')+'"><label>快递单号</label><input id="f-track" placeholder="选填" value="'+esc(e.tracking||'')+'"></div>'
   + '</div>'
@@ -1434,7 +1653,7 @@ function lineRowHTML(side, l, idx){
     const used = {};
     (draft && draft.give ? draft.give : []).forEach((x, xi) => { if (xi !== idx && x.itemId) used[x.itemId] = 1; });
     const subOf = list => list.filter(i => !used[i.id]);
-    const opt = '<option value="">从物料库选择…</option>'
+    const opt = '<option value="">从物料箱选择…</option>'
       + sortActs(DB.activities).map(a => {
           const sub = subOf(DB.items.filter(i => actsOf(i).includes(a.id)));
           if (!sub.length) return '';
@@ -1551,22 +1770,25 @@ function openExDetail(id){
     + '<span class="v" style="flex:1;text-align:left">'+esc(l.name)+'</span>'
     + '<span class="v" style="color:var(--blue)">×'+num(l.qty)+'</span></div>').join('');
   const done = e.status === '已完成';
+  const E = (field) => 'class="kv editable" data-edit="ex" data-id="'+id+'" data-field="'+field+'"';
+  const ph = (t) => '<span class="v placeholder">'+t+'</span>';
   const body = ''
-  + '<div class="detail-hero"><div class="meta"><div class="nm">'+esc(e.partner||'未填写对象')+'</div>'
-  +   '<div style="margin-top:8px">'+pill(e.status||'待寄出', EX_STATUS)+'</div>'
-  +   '<div class="tags">'+tagsHTML(e.tags)+'</div></div></div>'
+  + '<div class="detail-hero"><div class="meta"><div class="nm" '+E('partner')+'>'+esc(e.partner||'未填写对象')+'</div>'
+  +   '<div style="margin-top:8px" '+E('status')+'>'+pill(e.status||'待寄出', EX_STATUS)+'</div>'
+  +   '<div class="tags" '+E('tags')+'>'+(tagsHTML(e.tags) || ph('点击加标签'))+'</div></div></div>'
   + '<div class="fieldset">'
-  +   '<div class="kv"><span class="k">关联活动</span><span class="v">'+(e.activityId?esc(actName(e.activityId)):'未挂活动')+'</span></div>'
-  +   '<div class="kv"><span class="k">日期</span><span class="v">'+fmtDate(e.date)+'</span></div>'
-  +   (e.status === '待寄出' && e.tracking ? '<div class="kv"><span class="k">快递单号</span><span class="v">'+esc(e.tracking)+'</span></div>' : '')
+  +   '<div '+E('activity')+'><span class="k">关联活动</span><span class="v'+(e.activityId?'':' placeholder')+'">'+(e.activityId?esc(actName(e.activityId)):'未挂活动')+'</span></div>'
+  +   '<div '+E('date')+'><span class="k">日期</span><span class="v'+(e.date?'':' placeholder')+'">'+(e.date ? fmtDate(e.date) : '未填写')+'</span></div>'
+  +   '<div '+E('tracking')+'><span class="k">快递单号</span><span class="v'+(e.tracking?'':' placeholder')+'">'+esc(e.tracking||'未填写')+'</span></div>'
   + '</div>'
-  + '<div class="form-label">我给出 <span class="hint">共 '+out+' 件</span></div>'
+  + '<div class="form-label">我给出 <span class="hint">共 '+out+' 件 · 只读</span></div>'
   + '<div class="fieldset">' + (giveRows || '<div class="kv"><span class="k">未记录</span><span class="v"></span></div>') + '</div>'
-  + '<div class="form-label">我收到 <span class="hint">共 '+inn+' 件</span></div>'
+  + '<div class="form-label">我收到 <span class="hint">共 '+inn+' 件 · 只读</span></div>'
   + '<div class="fieldset">' + (rxRows || '<div class="kv"><span class="k">未记录</span><span class="v"></span></div>')
   +   (rxImgs ? '<div class="rx-imgs">'+rxImgs+'</div>' : '')
   + '</div>'
-  + (e.note ? '<div class="form-label">备注</div><div class="fieldset"><div class="field col" style="padding:12px 14px;font-size:15px;line-height:1.6">'+esc(e.note).replace(/\n/g,'<br>')+'</div></div>' : '')
+  + '<div class="form-label">备注</div>'
+  + '<div class="fieldset"><div '+E('note')+' style="display:block"><span class="v'+(e.note?'':' placeholder')+'" style="display:block;text-align:left;line-height:1.6">'+(e.note ? esc(e.note).replace(/\n/g,'<br>') : '未填写')+'</span></div></div>'
   + '<div class="btn-group"><button class="btn gray" data-act="closeSheet">取消</button>'
   +   '<button class="btn" data-act="ex-complete" data-id="'+id+'"'+(done?' disabled':'')+'>'+(done?'已完成':'完成')+'</button></div>';
   openSheet('互换详情', body, '编辑');
@@ -1799,8 +2021,12 @@ const mq = (typeof window.matchMedia === 'function')
 function applyTheme(){
   const dark = ui.theme === 'dark' || (ui.theme === 'auto' && mq.matches);
   document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-  const m = document.querySelector('meta[name=theme-color]');
-  if (m) m.setAttribute('content', dark ? '#000000' : '#F2F2F7');
+  document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+  // 同步主题色（可能有多条带 media 的 theme-color）
+  document.querySelectorAll('meta[name=theme-color]').forEach(m => {
+    m.setAttribute('content', dark ? '#171719' : '#F8F8F8');
+    m.removeAttribute('media');
+  });
 }
 if (mq.addEventListener) mq.addEventListener('change', () => { if (ui.theme === 'auto') applyTheme(); });
 
@@ -1885,6 +2111,9 @@ document.addEventListener('click', async (ev) => {
   }
   const btn = ev.target.closest('[data-act]');
   if (!btn) {
+    // 详情页可编辑字段行：点行弹出快捷修改
+    const editRow = ev.target.closest('[data-edit]');
+    if (editRow){ handleFieldEdit(editRow.dataset); return; }
     // 日期行：点整行即可唤起原生日期选择器（提升触屏命中率）
     const dateRow = ev.target.closest('.field.tap-date');
     if (dateRow){
@@ -2077,6 +2306,7 @@ document.addEventListener('click', async (ev) => {
 
     /* 弹层与数据 */
     case 'closeSheet': closeSheet(); return;
+    case 'closeField': closeField(); return;
     case 'closeDialog': if (dlgDone) dlgDone(false); return;
     case 'export': doExport(); return;
     case 'import': doImport(); return;
