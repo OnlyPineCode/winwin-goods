@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#F8F8F8" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#171719" media="(prefers-color-scheme: dark)">
@@ -34,8 +34,16 @@ html[data-theme="dark"]{
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
-/* 顶部状态栏/安全区配色：让最外层背景与顶栏同色，避免 iOS 状态栏色差 */
+/* 顶部状态栏/安全区配色：整条刘海/状态栏区域统一涂成顶栏实色，
+   避免 iOS 全面屏下状态栏露底色、与顶栏产生色差 */
 html{background:var(--nav-solid)}
+#statusbar-bg{
+  position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);
+  /* 由 applyTheme() 写入「顶栏半透明色叠加在 html 实色底上」的等效不透明色，
+     回退值 --nav-solid 与 html 底色一致，保证任何情况下接缝零色差 */
+  background:var(--nav-solid);
+  z-index:80;pointer-events:none;
+}
 body{
   background:var(--bg); color:var(--txt);
   font:400 16px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",Arial,sans-serif;
@@ -49,14 +57,25 @@ a{color:var(--blue);text-decoration:none}
 /* ============ 布局 ============ */
 #app{max-width:540px;margin:0 auto;min-height:100vh;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
 .hd{
-  position:sticky;top:0;z-index:20;
   background:var(--nav);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
-  border-bottom:.5px solid var(--sep);
+  border-bottom:none;
   padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;
 }
 .hd-row{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;min-height:34px}
 .hd h1{margin:0;font-size:32px;line-height:1.15;font-weight:700;letter-spacing:-.5px}
 .hd .sub{font-size:13px;color:var(--txt2);padding-bottom:5px;white-space:nowrap}
+/* 顶部只固定「标题条」；搜索/分段/筛选项（.hd-filters）随页面滚动移出，不固定 */
+.hd.sticky-top{
+  position:sticky;top:0;z-index:22;
+  padding-bottom:2px;
+}
+.hd.sticky-top::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:.5px;background:var(--sep);pointer-events:none;
+}
+.hd-filters{
+  background:var(--nav);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+  padding:0 16px 10px;
+}
 .hd-btn{
   display:inline-flex;align-items:center;justify-content:center;gap:4px;
   height:32px;padding:0 12px;border-radius:16px;background:var(--fill);
@@ -239,24 +258,35 @@ button.pill:active{opacity:.75}
 #sheet-root.show .mask{opacity:1}
 .sheet{
   position:absolute;left:50%;bottom:0;transform:translate(-50%,100%);
-  width:100%;max-width:540px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  width:100%;max-width:540px;height:auto;max-height:92vh;
+  display:flex;flex-direction:column;
   background:var(--bg);border-radius:18px 18px 0 0;
   transition:transform .32s cubic-bezier(.32,.72,0,1);
-  padding-bottom:calc(20px + env(safe-area-inset-bottom));
+  overflow:hidden;
+  /* 注意：本层只负责位移动画，滚动交给内部 .sheet-body，
+     避免「transform 容器 + -webkit-overflow-scrolling」导致 iOS 触摸滚动失效（表现为卡死） */
 }
 #sheet-root.show .sheet{transform:translate(-50%,0)}
 .sheet-hd{
-  position:sticky;top:0;z-index:5;background:var(--nav);
+  flex:0 0 auto;
+  background:var(--nav);
   -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
   border-bottom:.5px solid var(--sep);
   display:flex;align-items:center;gap:10px;padding:12px 16px;
 }
+.sheet-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px}
 .sheet-hd .ttl{flex:1;font-size:17px;font-weight:700;text-align:center;letter-spacing:-.2px}
 .sheet-hd button{font-size:16px;color:var(--blue);font-weight:500;min-width:44px;text-align:left}
 .sheet-hd button.rt{text-align:right;font-weight:600}
 .sheet-hd span.ph{min-width:44px}
 .grabber{width:36px;height:5px;border-radius:3px;background:var(--txt3);margin:8px auto 0;opacity:.6}
-.sheet-body{padding:16px}
+/* 固定底栏：详情/表单主操作按钮，不随内容滚动 */
+.sheet-foot{
+  position:sticky;bottom:0;z-index:6;
+  background:var(--bg);border-top:.5px solid var(--sep);
+  padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+}
+.sheet-foot .btn-group{margin-top:0}
 
 /* 字段快捷修改弹层（叠在详情弹层之上） */
 #field-root{position:fixed;inset:0;z-index:150;display:none}
@@ -265,18 +295,18 @@ button.pill:active{opacity:.75}
 #field-root.show .mask{opacity:1}
 .field-sheet{
   position:absolute;left:50%;bottom:0;transform:translate(-50%,100%);
-  width:100%;max-width:540px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  width:100%;max-width:540px;height:auto;max-height:88vh;
+  display:flex;flex-direction:column;overflow:hidden;
   background:var(--bg);border-radius:18px 18px 0 0;
   transition:transform .3s cubic-bezier(.32,.72,0,1);
-  padding-bottom:calc(20px + env(safe-area-inset-bottom));
 }
 #field-root.show .field-sheet{transform:translate(-50%,0)}
+.field-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 16px calc(16px + env(safe-area-inset-bottom))}
 .field-sheet .sheet-hd{display:flex;align-items:center;gap:8px;padding:14px 16px 6px}
 .field-sheet .sheet-hd .ttl{flex:1;font-size:17px;font-weight:700;text-align:center;letter-spacing:-.2px}
 .field-sheet .sheet-hd button{font-size:16px;color:var(--blue);font-weight:500;min-width:44px;text-align:left;background:none;border:0}
 .field-sheet .sheet-hd button.rt{text-align:right;font-weight:600}
 .field-sheet .sheet-hd button.ph{visibility:hidden;pointer-events:none}
-.field-body{padding:8px 16px 16px}
 /* 详情页可编辑行：可点视觉 */
 .kv.editable{cursor:pointer}
 .kv.editable:active{background:var(--fill)}
@@ -412,6 +442,7 @@ html[data-theme="dark"] #toast{background:rgba(255,255,255,.92);color:#000}
 </style>
 </head>
 <body>
+<div id="statusbar-bg"></div>
 <div id="app">
   <div id="view"></div>
 </div>
@@ -556,12 +587,24 @@ const ui = {
 let draft = null;
 let rxTarget = -1;
 let saveTimer = null;
+let savePending = false;
 function save(now){
   clearTimeout(saveTimer);
-  const run = () => Store.set(JSON.parse(JSON.stringify(DB)));
+  savePending = true;
+  const run = () => { savePending = false; return Store.set(JSON.parse(JSON.stringify(DB))); };
   if (now) return run();
   saveTimer = setTimeout(run, 260);
 }
+/* 兜底落盘：页面被隐藏/关闭/切到后台时，把尚未写入的改动立即刷盘。
+   iOS 下用户「改完立刻切 App / 锁屏」会冻结定时器，若不强制刷盘会丢数据。 */
+function flushSave(){
+  if (!savePending) return;
+  clearTimeout(saveTimer);
+  savePending = false;
+  Store.set(JSON.parse(JSON.stringify(DB)));
+}
+window.addEventListener('pagehide', flushSave);
+window.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushSave(); });
 
 /* ---------- 查询辅助 ---------- */
 function normalize(){
@@ -700,9 +743,11 @@ function viewLibrary(){
   ).join('');
 
   return ''
-  + '<div class="hd">'
+  + '<div class="hd sticky-top">'
   +   '<div class="hd-row"><h1>物料</h1>'
   +     '<button class="hd-btn" data-act="lib-new">＋ 新增</button></div>'
+  + '</div>'
+  + '<div class="hd-filters">'
   +   '<div class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>'
   +     '<input type="search" placeholder="搜索物料名 / 标签 / 备注" value="'+esc(ui.lib.q)+'" data-input="lib-q"></div>'
   +   '<div class="seg">'
@@ -827,9 +872,11 @@ function viewPlan(){
   }
 
   return ''
-  + '<div class="hd">'
+  + '<div class="hd sticky-top">'
   +   '<div class="hd-row"><h1>制作</h1>'
   +     '<button class="hd-btn" data-act="lib-new">＋ 新增</button></div>'
+  + '</div>'
+  + '<div class="hd-filters">'
   +   '<div class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>'
   +     '<input type="search" placeholder="搜索物料名 / 标签 / 备注" value="'+esc(ui.plan.q)+'" data-input="plan-q"></div>'
   +   '<div class="seg">'
@@ -913,9 +960,11 @@ function viewExchange(){
   else body = exByPartner(list);
 
   return ''
-  + '<div class="hd">'
+  + '<div class="hd sticky-top">'
   +   '<div class="hd-row"><h1>互换</h1>'
   +     '<button class="hd-btn" data-act="ex-new">＋ 记录</button></div>'
+  + '</div>'
+  + '<div class="hd-filters">'
   +   '<div class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>'
   +     '<input type="search" placeholder="搜索对象 / 备注 / 标签" value="'+esc(ui.ex.q)+'" data-input="ex-q"></div>'
   +   '<div class="seg">'
@@ -1144,7 +1193,7 @@ function viewSettings(){
   const imgCnt = DB.items.filter(i => i.image).length;
 
   return ''
-  + '<div class="hd"><div class="hd-row"><h1>设置</h1><span class="sub">数据仅存本机</span></div></div>'
+  + '<div class="hd sticky-top"><div class="hd-row"><h1>设置</h1><span class="sub">数据仅存本机</span></div></div>'
   + '<div class="content">'
 
   + '<div class="group"><div class="group-head"><span class="t">活动</span><span class="rt">'+acts.length+' 个</span>'
@@ -1234,14 +1283,32 @@ function openSheet(title, bodyHTML, rightBtn){
     + '<div class="sheet-hd"><button data-act="closeSheet">取消</button><span class="ttl">'+esc(title)+'</span>'
     + rb + '</div>'
     + '<div class="sheet-body">'+bodyHTML+'</div>';
+  hoistFooterBtns();
   root.classList.add('open');
   requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add('show')));
+}
+/* 把详情页主操作按钮（.btn-group）从滚动内容里提到固定底栏，
+   避免 iOS 下随内容滚动、长列表末尾按钮不可见 */
+function hoistFooterBtns(){
+  const sheet = $('#sheet');
+  const body = sheet.querySelector('.sheet-body');
+  if (!body) return;
+  const grp = body.querySelector(':scope > .btn-group');
+  if (!grp) return;
+  let foot = sheet.querySelector('.sheet-foot');
+  if (!foot){
+    foot = document.createElement('div');
+    foot.className = 'sheet-foot';
+    sheet.appendChild(foot);
+  }
+  foot.appendChild(grp);
 }
 function openSheetRaw(title, bodyHTML){
   const root = $('#sheet-root');
   clearTimeout(sheetTimer);
   $('#sheet').innerHTML = '<div class="grabber"></div><div class="sheet-hd"><button data-act="closeSheet">取消</button>'
     + '<span class="ttl">'+esc(title)+'</span><span class="ph"></span></div><div class="sheet-body">'+bodyHTML+'</div>';
+  hoistFooterBtns();
   root.classList.add('open');
   requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add('show')));
 }
@@ -1363,7 +1430,7 @@ function saveItem(){
     DB.items.push(Object.assign({ id: uid(), image: (draft && draft.image) || null, createdAt: Date.now() }, d));
     toast('已创建物料');
   }
-  save(); closeSheet(); render();
+  save(true); closeSheet(); render();
 }
 
 /* ---------- 详情页字段快捷修改：分发器 ---------- */
@@ -1376,7 +1443,7 @@ function handleFieldEdit(ds){
   /* -------- 物料字段 -------- */
   if (type === 'item'){
     const it = itemById(id); if (!it) return;
-    const save1 = (patch) => { Object.assign(it, patch); save(); refresh(); };
+    const save1 = (patch) => { Object.assign(it, patch); save(true); refresh(); };
     switch(field){
       case 'name':
         return openFieldEditor({ title:'物料名称', kind:'text', value:it.name||'', placeholder:'如：团体手幅', required:true, onSave:v => save1({ name:v }) });
@@ -1417,7 +1484,7 @@ function handleFieldEdit(ds){
   /* -------- 互换字段 -------- */
   if (type === 'ex'){
     const e = DB.exchanges.find(x => x.id === id); if (!e) return;
-    const save1 = (patch) => { Object.assign(e, patch, { updatedAt: Date.now() }); save(); refresh(); };
+    const save1 = (patch) => { Object.assign(e, patch, { updatedAt: Date.now() }); save(true); refresh(); };
     switch(field){
       case 'partner':
         return openFieldEditor({ title:'互换对象', kind:'text', value:e.partner||'', placeholder:'对方昵称 / 站子名', required:true, onSave:v => save1({ partner:v }) });
@@ -1715,7 +1782,7 @@ function saveExchange(){
     DB.exchanges.push(Object.assign({ id: uid(), createdAt: Date.now() }, d));
     toast('已记录');
   }
-  save(); closeSheet(); render();
+  save(true); closeSheet(); render();
 }
 
 /* 按活动带出互换日期：有活动日期用活动日期，否则当天 */
@@ -1770,6 +1837,7 @@ function openExDetail(id){
     + '<span class="v" style="flex:1;text-align:left">'+esc(l.name)+'</span>'
     + '<span class="v" style="color:var(--blue)">×'+num(l.qty)+'</span></div>').join('');
   const done = e.status === '已完成';
+  const isMail = e.status === '待寄出';   // 非邮寄（面交/已完成）不展示快递单号
   const E = (field) => 'class="kv editable" data-edit="ex" data-id="'+id+'" data-field="'+field+'"';
   const ph = (t) => '<span class="v placeholder">'+t+'</span>';
   const body = ''
@@ -1779,7 +1847,7 @@ function openExDetail(id){
   + '<div class="fieldset">'
   +   '<div '+E('activity')+'><span class="k">关联活动</span><span class="v'+(e.activityId?'':' placeholder')+'">'+(e.activityId?esc(actName(e.activityId)):'未挂活动')+'</span></div>'
   +   '<div '+E('date')+'><span class="k">日期</span><span class="v'+(e.date?'':' placeholder')+'">'+(e.date ? fmtDate(e.date) : '未填写')+'</span></div>'
-  +   '<div '+E('tracking')+'><span class="k">快递单号</span><span class="v'+(e.tracking?'':' placeholder')+'">'+esc(e.tracking||'未填写')+'</span></div>'
+  +   (isMail ? '<div '+E('tracking')+'><span class="k">快递单号</span><span class="v'+(e.tracking?'':' placeholder')+'">'+esc(e.tracking||'未填写')+'</span></div>' : '')
   + '</div>'
   + '<div class="form-label">我给出 <span class="hint">共 '+out+' 件 · 只读</span></div>'
   + '<div class="fieldset">' + (giveRows || '<div class="kv"><span class="k">未记录</span><span class="v"></span></div>') + '</div>'
@@ -1836,7 +1904,7 @@ function saveActivity(){
   } else {
     DB.activities.push(Object.assign({ id: uid(), createdAt: Date.now() }, d));
   }
-  save(); closeSheet(); render(); toast('已保存');
+  save(true); closeSheet(); render(); toast('已保存');
 }
 
 /* =========================================================
@@ -2018,10 +2086,39 @@ function loadLocalCfg(){
 const mq = (typeof window.matchMedia === 'function')
   ? window.matchMedia('(prefers-color-scheme: dark)')
   : { matches:false, addEventListener:function(){}, addListener:function(){} };
+/* 解析 CSS 颜色（支持 #hex / rgb() / rgba()）为 [r,g,b,a] */
+function parseColor(str){
+  str = (str || '').trim();
+  if (str[0] === '#'){
+    let h = str.slice(1);
+    if (h.length === 3) h = h.split('').map(c => c + c).join('');
+    const n = parseInt(h, 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255, 1];
+  }
+  const m = str.match(/[\d.]+/g);
+  if (!m) return null;
+  const n = m.map(Number);
+  return [n[0], n[1], n[2], n.length > 3 ? n[3] : 1];
+}
+/* 计算「半透明顶栏叠加在实色底上」的等效不透明色：c = fg*a + bg*(1-a) */
+function compositeOpaque(over, under){
+  const a = parseColor(over), b = parseColor(under);
+  if (!a || !b) return null;
+  const mix = (i) => Math.round(a[i] * a[3] + b[i] * (1 - a[3]));
+  return 'rgb(' + mix(0) + ',' + mix(1) + ',' + mix(2) + ')';
+}
 function applyTheme(){
   const dark = ui.theme === 'dark' || (ui.theme === 'auto' && mq.matches);
   document.documentElement.dataset.theme = dark ? 'dark' : 'light';
   document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+  // 状态栏条：精确取顶栏(--nav)叠加在 html 实色底(--nav-solid)上的等效不透明色，
+  // 整条刘海/状态栏区域与顶栏零色差（iOS 全面屏状态栏必须与顶栏连成一体）
+  const sbEl = document.getElementById('statusbar-bg');
+  if (sbEl){
+    const cs = getComputedStyle(document.documentElement);
+    const eq = compositeOpaque(cs.getPropertyValue('--nav'), cs.getPropertyValue('--nav-solid'));
+    sbEl.style.background = eq || (dark ? '#171719' : '#F8F8F8');
+  }
   // 同步主题色（可能有多条带 media 的 theme-color）
   document.querySelectorAll('meta[name=theme-color]').forEach(m => {
     m.setAttribute('content', dark ? '#171719' : '#F8F8F8');
@@ -2163,7 +2260,7 @@ document.addEventListener('click', async (ev) => {
       if (!ok) return;
       DB.items = DB.items.filter(x => x.id !== id);
       DB.exchanges.forEach(e => { e.give = (e.give||[]).filter(l => l.itemId !== id); });
-      save(); closeSheet(); render(); toast('已删除');
+      save(true); closeSheet(); render(); toast('已删除');
       return;
     }
     case 'img-clear':
@@ -2182,7 +2279,7 @@ document.addEventListener('click', async (ev) => {
       const it = itemById(id); if (!it) return;
       it.madeQty = Math.max(0, num(it.madeQty) + num(btn.dataset.d));
       if (num(it.planQty) > 0 && it.madeQty >= num(it.planQty) && it.status !== '已完成') it.status = '已完成';
-      save(); render(true); return;
+      save(true); render(true); return;
     }
     case 'pick-status': openStatusPicker(id, DB.statuses, 'set-status'); return;
     case 'set-status': {
@@ -2202,7 +2299,7 @@ document.addEventListener('click', async (ev) => {
     case 'ex-complete': {
       const e = DB.exchanges.find(x => x.id === id); if (!e) return;
       e.status = '已完成'; e.tracking = '';
-      save(); closeSheet(); render(); toast('已完成 ✓');
+      save(true); closeSheet(); render(); toast('已完成 ✓');
       return;
     }
     case 'pick-ex-status': openStatusPicker(id, EX_STATUS, 'set-ex-status'); return;
@@ -2217,7 +2314,7 @@ document.addEventListener('click', async (ev) => {
       const ok = await confirmDialog({ title:'删除这条互换记录？', msg:'删除后不可恢复。', ok:'删除', danger:true });
       if (!ok) return;
       DB.exchanges = DB.exchanges.filter(x => x.id !== id);
-      save(); closeSheet(); render(); toast('已删除');
+      save(true); closeSheet(); render(); toast('已删除');
       return;
     }
     case 'line-add':
@@ -2260,7 +2357,7 @@ document.addEventListener('click', async (ev) => {
       DB.activities = DB.activities.filter(x => x.id !== id);
       DB.items.forEach(i => { i.activityIds = (i.activityIds||[]).filter(x => x !== id); });
       DB.exchanges.forEach(x => { if (x.activityId === id) x.activityId = ''; });
-      save(); closeSheet(); render(); toast('已删除');
+      save(true); closeSheet(); render(); toast('已删除');
       return;
     }
 
@@ -2345,7 +2442,7 @@ document.addEventListener('change', (ev) => {
     }
     it.madeQty = Math.round(v);
     if (num(it.planQty) > 0 && it.madeQty >= num(it.planQty) && it.status !== '已完成') it.status = '已完成';
-    save(); render(true);
+    save(true); render(true);
     return;
   }
   if (act === 'line-pick'){
