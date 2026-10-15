@@ -1403,7 +1403,7 @@ function exFormHTML(e){
   + '<div class="fieldset">'
   +   '<div class="field"><label class="req">互换对象</label><input id="f-partner" placeholder="对方昵称 / 站子名" value="'+esc(e.partner)+'" autocomplete="off"></div>'
   +   '<div class="field"><label>关联活动</label><select id="f-act">'+actOpts+'</select><span class="sel-arrow">›</span></div>'
-  +   '<div class="field tap-date" data-date-for="f-date"><label>日期</label><input type="date" id="f-date" value="'+esc(e.date||todayStr())+'" style="text-align:right"></div>'
+  +   '<div class="field tap-date" data-date-for="f-date"><label>日期</label><input type="date" id="f-date" value="'+esc(e.date||todayStr())+'" style="text-align:right"><span class="suffix" style="flex:0 0 auto">随活动</span></div>'
   +   '<div class="field"><label>状态</label><select id="f-status">'+stOpts+'</select><span class="sel-arrow">›</span></div>'
   +   '<div class="field" id="track-wrap" style="display:'+(showTrack?'':'none')+'"><label>快递单号</label><input id="f-track" placeholder="选填" value="'+esc(e.tracking||'')+'"></div>'
   + '</div>'
@@ -1499,6 +1499,11 @@ function saveExchange(){
   save(); closeSheet(); render();
 }
 
+/* 按活动带出互换日期：有活动日期用活动日期，否则当天 */
+function exDateFromActivity(actId){
+  const a = actId ? actRaw(actId) : null;
+  return (a && a.date) ? a.date : todayStr();
+}
 function bindExForm(){
   actionSave = saveExchange;
   const sb = $('#sheet-save'); if (sb) sb.dataset.mode = 'exchange';
@@ -1507,6 +1512,16 @@ function bindExForm(){
     const w = document.getElementById('track-wrap');
     if (w) w.style.display = st.value === '待寄出' ? '' : 'none';
   };
+  // 日期随「关联活动」自动带出（有活动日期用活动日期，否则当天）；用户手动改过后不再覆盖
+  const act = document.getElementById('f-act'), dt = document.getElementById('f-date');
+  if (act && dt){
+    dt.dataset.auto = dt.dataset.auto || '1';           // 初始视为自动带出
+    dt.addEventListener('input', () => { dt.dataset.auto = '0'; });  // 手动改过则锁住
+    act.onchange = () => {
+      if (dt.dataset.auto !== '1') return;               // 用户已自定义，不覆盖
+      dt.value = exDateFromActivity(act.value);
+    };
+  }
   const inp = document.getElementById('rx-img-input');
   if (inp) inp.onchange = async () => {
     const f = inp.files && inp.files[0];
@@ -1571,6 +1586,9 @@ function startEditExchange(id){
   if (!draft.receive.length) draft.receive = [{ name:'', qty:1, image:'' }];
   openSheet('编辑互换记录', exFormHTML(e), '保存');
   bindExForm();
+  // 编辑态：若原日期与活动带出值一致，则保持「自动」；否则视为用户自定义，锁定不被覆盖
+  const dt = document.getElementById('f-date');
+  if (dt) dt.dataset.auto = (e.date && e.date === exDateFromActivity(e.activityId)) ? '1' : '0';
 }
 
 /* ---------- 活动表单 ---------- */
