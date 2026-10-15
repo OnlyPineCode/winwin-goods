@@ -1273,6 +1273,7 @@ function emptyState(title, desc, btnText, act){
    弹层基础
    ========================================================= */
 let sheetTimer = null;
+let listDirty = false;   // 详情快捷编辑改动了数据，关闭弹层时需重绘列表
 function openSheet(title, bodyHTML, rightBtn){
   const root = $('#sheet-root');
   clearTimeout(sheetTimer);
@@ -1318,6 +1319,8 @@ function closeSheet(){
   clearTimeout(sheetTimer);
   sheetTimer = setTimeout(() => { root.classList.remove('open'); $('#sheet').innerHTML=''; }, 300);
   draft = null; rxTarget = -1;
+  // 详情页快捷编辑后，关闭弹层时把列表一并重绘（否则列表仍显示旧数据）
+  if (listDirty){ listDirty = false; render(true); }
 }
 
 let dlgDone = null;
@@ -1438,7 +1441,8 @@ function handleFieldEdit(ds){
   const type = ds.edit;          // 'item' | 'ex'
   const id = ds.id;
   const field = ds.field;        // 字段名
-  const refresh = () => { if (type === 'item') openItemDetail(id); else openExDetail(id); };
+  // 保存后：重绘详情 + 标记列表为脏（关闭弹层时统一重绘列表，列表数据同步）
+  const refresh = () => { listDirty = true; if (type === 'item') openItemDetail(id); else openExDetail(id); };
 
   /* -------- 物料字段 -------- */
   if (type === 'item'){
