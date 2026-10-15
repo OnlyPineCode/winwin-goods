@@ -150,6 +150,12 @@ button.pill:active{opacity:.75}
 .stepper button{width:30px;height:28px;font-size:17px;font-weight:600;color:var(--blue);display:flex;align-items:center;justify-content:center}
 .stepper button:active{background:var(--sep)}
 .stepper .v{min-width:34px;text-align:center;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+.stepper input.v{
+  width:42px;height:28px;border:0;background:none;outline:none;padding:0;
+  -webkit-appearance:none;appearance:none;color:var(--blue);
+}
+.stepper input.v::-webkit-outer-spin-button,
+.stepper input.v::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 
 /* 互换行 */
 .ex-lines{display:flex;flex-direction:column;gap:5px;margin-top:7px}
@@ -159,6 +165,29 @@ button.pill:active{opacity:.75}
 .ex-foot{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:7px}
 .ex-foot .sum{margin-left:auto;font-size:12px;color:var(--txt2);font-variant-numeric:tabular-nums}
 .ex-foot .sum b{font-weight:600}
+
+/* 按人统计：人物卡片 + 单笔互换小卡 */
+.pcard{background:var(--card);border-radius:var(--radius);overflow:hidden}
+.pcard-sec{padding:2px 12px 12px}
+.pcard-sec+.pcard-sec{border-top:.5px solid var(--sep);padding-top:6px}
+.pcard-sec-hd{display:flex;align-items:baseline;gap:8px;margin:8px 2px 9px}
+.pcard-sec-hd .t{font-size:13px;font-weight:600;color:var(--txt)}
+.pcard-sec-hd .t.muted{color:var(--txt2)}
+.pcard-sec-hd .n{font-size:12px;color:var(--txt2)}
+.pcard-sec-hd .rt{margin-left:auto;font-size:12px;color:var(--txt2);font-variant-numeric:tabular-nums}
+.pcard-item{
+  display:block;width:100%;text-align:left;
+  border:1px solid var(--sep);border-radius:11px;
+  padding:10px 11px;margin-bottom:8px;background:var(--bg-elev);
+}
+.pcard-item:last-child{margin-bottom:0}
+.pcard-item.press:active{background:var(--fill)}
+.pcard-item-hd{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.pcard-item-hd .d{font-size:12px;color:var(--txt2);font-variant-numeric:tabular-nums}
+.pcard-item-hd .s{margin-left:auto;font-size:12px;color:var(--txt2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pcard-item-hd .s b{font-weight:600}
+.pcard-item .ex-lines{margin-top:8px}
+.pcard-item .ex-foot{margin-top:6px}
 
 /* 空状态 */
 .empty{padding:56px 24px;text-align:center;color:var(--txt2)}
@@ -233,6 +262,19 @@ button.pill:active{opacity:.75}
 }
 .field input::placeholder,.field textarea::placeholder{color:var(--txt3)}
 .field select{text-align:right;direction:ltr}
+/* 日期控件：恢复原生外观（保住日历图标）＋撑满整行高度，保证可点 */
+.field input[type=date]{
+  -webkit-appearance:auto;appearance:auto;
+  height:44px;min-height:44px;padding:0;margin:0;
+  text-align:right;direction:ltr;
+  background:none;border:0;color:var(--txt);font-size:16px;
+  cursor:pointer;
+}
+.field input[type=date]::-webkit-calendar-picker-indicator{
+  opacity:.55;cursor:pointer;padding:0;margin:0;
+}
+.field input[type=date]::-webkit-date-and-time-value{text-align:right}
+.field.tap-date{cursor:pointer}
 .field .suffix{color:var(--txt2);font-size:14px;flex:0 0 auto}
 .field.col{flex-direction:column;align-items:stretch;gap:6px}
 .field.col label{width:auto}
@@ -796,7 +838,7 @@ function planCards(list, flow){
       + '</button>'
       + '<div class="row-right">'
       +   pillBtn('pick-status', i.id, i.status || '', DB.statuses)
-      +   '<span class="stepper"><button data-act="bump" data-id="'+i.id+'" data-d="-1">−</button><span class="v">'+made+'</span><button data-act="bump" data-id="'+i.id+'" data-d="1">＋</button></span>'
+      +   '<span class="stepper"><button data-act="bump" data-id="'+i.id+'" data-d="-1">−</button><input class="v" type="number" inputmode="numeric" min="0" data-act="bump-set" data-id="'+i.id+'" value="'+made+'"><button data-act="bump" data-id="'+i.id+'" data-d="1">＋</button></span>'
       + '</div>'
       + '</div>';
   }).join('') + '</div>';
@@ -923,46 +965,64 @@ function exByActivity(list){
 }
 
 function exByMaterial(list){
-  const build = src => {
-    const m = {};
-    const bump = (key, field, qty, label) => {
-      if (!key) return;
-      if (!m[key]) m[key] = { out:0, in:0, label:label };
-      m[key][field] += num(qty);
-    };
-    src.forEach(e => {
-      (e.give||[]).forEach(l => {
-        const it = itemById(l.itemId);
-        bump(l.itemId, 'out', l.qty, it ? it.name : '（已删除）');
-      });
-      (e.receive||[]).forEach(l => bump('custom:' + (l.name||'').trim(), 'in', l.qty, (l.name||'').trim()));
-    });
-    return m;
-  };
-  const m = build(list);
-  const keys = Object.keys(m);
-  if (!keys.length) return emptyState('暂无互换数据','记录几笔互换后，这里会按物料汇总换出 / 换入 / 净变化。','','');
+  const flow = exchangeFlow();
+  // 换出：本人物料（key = itemId）
+  const outMap = {};
+  list.forEach(e => (e.give||[]).forEach(l => {
+    if (!l.itemId) return;
+    const it = itemById(l.itemId);
+    if (!outMap[l.itemId]) outMap[l.itemId] = { name: it ? it.name : '（已删除）', qty:0, it: it };
+    outMap[l.itemId].qty += num(l.qty);
+  }));
+  // 换入：对方物料（key = custom:名称）
+  const inMap = {};
+  list.forEach(e => (e.receive||[]).forEach(l => {
+    const nm = (l.name||'').trim(); if (!nm) return;
+    if (!inMap[nm]) inMap[nm] = { name: nm, qty:0 };
+    inMap[nm].qty += num(l.qty);
+  }));
 
-  keys.sort((a,b) => (m[b].out + m[b].in) - (m[a].out + m[a].in));
-  let totOut = 0, totIn = 0;
-  keys.forEach(k => { totOut += m[k].out; totIn += m[k].in; });
-  const rows = keys.map(k => {
-    const r = m[k];
-    const it = itemById(k);
-    const net = r.in - r.out;
-    const label = r.label + (k.indexOf('custom:') === 0 ? ' <span class="tag">对方物料</span>' : '');
-    return '<div class="tr"><div class="c1">' + (it ? thumbHTML(it,'sm') : '') + '<span class="nm">'+label+'</span></div>'
-      + '<div class="c2" style="color:var(--orange)">'+r.out+'</div>'
-      + '<div class="c3" style="color:var(--blue)">'+r.in+'</div>'
-      + '<div class="c4" style="color:'+(net>=0?'var(--green)':'var(--red)')+'">'+(net>0?'+':'')+net+'</div></div>';
-  }).join('');
+  const outKeys = Object.keys(outMap);
+  const inKeys = Object.keys(inMap);
+  if (!outKeys.length && !inKeys.length)
+    return emptyState('暂无互换数据','记录几笔互换后，这里会分别按「换出物料」和「换入物料」汇总。','','');
 
-  return ''
-  + '<div class="group"><div class="group-head"><span class="t">按物料统计</span><span class="n">'+keys.length+' 种</span>'
-  +   '<span class="rt">换出 '+totOut+' · 换入 '+totIn+'</span></div>'
-  +   '<div class="tbl"><div class="tr head"><div class="c1">物料</div><div class="c2">换出</div><div class="c3">换入</div><div class="c4">净变化</div></div>'
-  +   rows + '</div>'
-  +   '<div class="setnote">净变化 = 换入 − 换出，正数表示净赚，负数表示净支出。</div></div>';
+  let html = '';
+
+  if (outKeys.length){
+    outKeys.sort((a,b) => outMap[b].qty - outMap[a].qty);
+    let tot = 0, rest = 0;
+    outKeys.forEach(k => { tot += outMap[k].qty; rest += outMap[k].it ? availOf(outMap[k].it, flow) : 0; });
+    const rows = outKeys.map(k => {
+      const r = outMap[k];
+      return '<div class="tr"><div class="c1">' + (r.it ? thumbHTML(r.it,'sm') : '') + '<span class="nm">'+esc(r.name)+'</span></div>'
+        + '<div class="c3" style="color:var(--orange)">'+r.qty+'</div>'
+        + '<div class="c4">'+(r.it ? availOf(r.it, flow) : '—')+'</div></div>';
+    }).join('');
+    html += '<div class="group"><div class="group-head"><span class="t">换出物料</span><span class="n">'+outKeys.length+' 种</span>'
+      + '<span class="rt">共换出 '+tot+' · 余量 '+rest+'</span></div>'
+      + '<div class="tbl"><div class="tr head"><div class="c1">物料</div><div class="c3">换出</div><div class="c4">当前余量</div></div>'
+      + rows + '</div></div>';
+  }
+
+  if (inKeys.length){
+    inKeys.sort((a,b) => inMap[b].qty - inMap[a].qty);
+    let tot = 0;
+    inKeys.forEach(k => { tot += inMap[k].qty; });
+    const rows = inKeys.map(k => {
+      const r = inMap[k];
+      return '<div class="tr"><div class="c1"><span class="nm">'+esc(r.name)+' <span class="tag">对方物料</span></span></div>'
+        + '<div class="c3" style="color:var(--blue)">'+r.qty+'</div>'
+        + '<div class="c4">'+r.qty+'</div></div>';
+    }).join('');
+    html += '<div class="group"><div class="group-head"><span class="t">换入物料</span><span class="n">'+inKeys.length+' 种</span>'
+      + '<span class="rt">共换入 '+tot+'</span></div>'
+      + '<div class="tbl"><div class="tr head"><div class="c1">物料</div><div class="c3">换入</div><div class="c4">总余量</div></div>'
+      + rows + '</div>'
+      + '<div class="setnote">换入物料来自互换对方，总余量即累计换入总量。</div></div>';
+  }
+
+  return html;
 }
 
 function exByPartner(list){
@@ -982,26 +1042,46 @@ function exByPartner(list){
     const es = map.get(p);
     let oOut = 0, oIn = 0;
     es.forEach(e => { oOut += sumQty(e,'give'); oIn += sumQty(e,'receive'); });
+    // 按活动切小节，保证同人不同活动的记录分区清晰
     const byAct = new Map();
     es.forEach(e => {
       const k = e.activityId || 'none';
       if (!byAct.has(k)) byAct.set(k, []);
       byAct.get(k).push(e);
     });
-    const cards = Array.from(byAct.keys()).map(k => {
+    const secs = Array.from(byAct.keys()).map(k => {
       const its = byAct.get(k);
       let oo = 0, ii = 0;
       its.forEach(e => { oo += sumQty(e,'give'); ii += sumQty(e,'receive'); });
-      return '<div style="background:var(--bg);border-radius:12px;padding:4px 10px 6px;margin-top:8px">'
-        + '<div class="group-head" style="margin:6px 2px 2px"><span class="t" style="font-size:14px;'+(k==='none'?'color:var(--txt2)':'')+'">'+esc(k==='none'?'未挂活动':actName(k))+'</span>'
-        + '<span class="n">'+its.length+' 笔</span><span class="rt">换出 '+oo+' · 换入 '+ii+'</span></div>'
-        + its.map(e => exCard(e, false, true)).join('')
+      return '<div class="pcard-sec">'
+        + '<div class="pcard-sec-hd"><span class="t'+(k==='none'?' muted':'')+'">'+esc(k==='none'?'未挂活动':actName(k))+'</span>'
+        + '<span class="n">'+its.length+' 笔</span>'
+        + '<span class="rt">换出 '+oo+' · 换入 '+ii+'</span></div>'
+        + its.map(e => exMiniCard(e)).join('')
         + '</div>';
     }).join('');
     return '<div class="group"><div class="group-head"><span class="t">'+esc(p)+'</span>'
       + '<span class="n">'+es.length+' 笔</span><span class="rt">换出 '+oOut+' · 换入 '+oIn+'</span></div>'
-      + '<div class="card" style="padding:10px">' + cards + '</div></div>';
+      + '<div class="pcard">' + secs + '</div></div>';
   }).join('');
+}
+
+// 「按人」视图里的单笔互换小卡：独立卡片，一眼看清换出/换入
+function exMiniCard(e){
+  const s = exSummaryLine(e);
+  const out = sumQty(e,'give'), inn = sumQty(e,'receive');
+  return '<button class="pcard-item press" data-act="open-ex" data-id="'+e.id+'">'
+    + '<div class="pcard-item-hd">'
+    +   '<span class="d">'+(e.date?fmtDate(e.date):'')+'</span>'
+    +   pill(e.status||'待寄出', EX_STATUS)
+    +   '<span class="s">换出 <b style="color:var(--orange)">'+out+'</b> · 换入 <b style="color:var(--blue)">'+inn+'</b></span>'
+    + '</div>'
+    + '<div class="ex-lines">'
+    +   (s.g ? '<div class="ex-line"><span class="lbl" style="color:var(--orange);background:'+tint('#FF9500',.15)+'">给出</span><span class="nm">'+esc(s.g)+'</span></div>' : '')
+    +   (s.r ? '<div class="ex-line"><span class="lbl" style="color:var(--blue);background:'+tint('#007AFF',.15)+'">收到</span><span class="nm">'+esc(s.r)+'</span></div>' : '')
+    + '</div>'
+    + (e.tags && e.tags.length ? '<div class="ex-foot">'+tagsHTML(e.tags)+'</div>' : '')
+    + '</button>';
 }
 
 /* ---------- Tab4 设置 ---------- */
@@ -1194,7 +1274,7 @@ function itemFormHTML(it){
   +   '<div class="field"><label>已完成</label><input type="number" inputmode="numeric" id="f-made" value="'+num(it.madeQty)+'" style="text-align:right"><span class="suffix">件</span></div>'
   +   '<div class="field"><label>当前余量</label><input type="number" inputmode="numeric" id="f-stock" value="'+stockVal+'" style="text-align:right"><span class="suffix">件</span></div>'
   +   '<div class="field"><label>单件成本</label><input type="number" inputmode="decimal" id="f-cost" value="'+(it.cost===''||it.cost==null?'':it.cost)+'" placeholder="选填" style="text-align:right"><span class="suffix">元</span></div>'
-  +   '<div class="field"><label>到货日期</label><input type="date" id="f-got" value="'+esc(it.gotDate||'')+'" style="text-align:right"></div>'
+  +   '<div class="field tap-date" data-date-for="f-got"><label>到货日期</label><input type="date" id="f-got" value="'+esc(it.gotDate||'')+'" style="text-align:right"></div>'
   + '</div>'
 
   + '<div class="form-label">制作对接 <span class="hint">选填</span></div>'
@@ -1323,7 +1403,7 @@ function exFormHTML(e){
   + '<div class="fieldset">'
   +   '<div class="field"><label class="req">互换对象</label><input id="f-partner" placeholder="对方昵称 / 站子名" value="'+esc(e.partner)+'" autocomplete="off"></div>'
   +   '<div class="field"><label>关联活动</label><select id="f-act">'+actOpts+'</select><span class="sel-arrow">›</span></div>'
-  +   '<div class="field"><label>日期</label><input type="date" id="f-date" value="'+esc(e.date||todayStr())+'" style="text-align:right"></div>'
+  +   '<div class="field tap-date" data-date-for="f-date"><label>日期</label><input type="date" id="f-date" value="'+esc(e.date||todayStr())+'" style="text-align:right"></div>'
   +   '<div class="field"><label>状态</label><select id="f-status">'+stOpts+'</select><span class="sel-arrow">›</span></div>'
   +   '<div class="field" id="track-wrap" style="display:'+(showTrack?'':'none')+'"><label>快递单号</label><input id="f-track" placeholder="选填" value="'+esc(e.tracking||'')+'"></div>'
   + '</div>'
@@ -1350,15 +1430,19 @@ function linesBoxHTML(side, arr){
 
 function lineRowHTML(side, l, idx){
   if (side === 'give'){
+    // 同一表单内已被其它行选中的物料，从本行候选中剔除（避免重复选择）；本行自身的选中项保留
+    const used = {};
+    (draft && draft.give ? draft.give : []).forEach((x, xi) => { if (xi !== idx && x.itemId) used[x.itemId] = 1; });
+    const subOf = list => list.filter(i => !used[i.id]);
     const opt = '<option value="">从物料库选择…</option>'
       + sortActs(DB.activities).map(a => {
-          const sub = DB.items.filter(i => actsOf(i).includes(a.id));
+          const sub = subOf(DB.items.filter(i => actsOf(i).includes(a.id)));
           if (!sub.length) return '';
           return '<optgroup label="'+esc(a.name)+'">' + sub.map(i =>
             '<option value="'+i.id+'"'+(l.itemId===i.id?' selected':'')+'>'+esc(i.name)+'</option>').join('') + '</optgroup>';
         }).join('')
-      + (DB.items.filter(i => !actsOf(i).length).length
-          ? '<optgroup label="未挂活动">' + DB.items.filter(i => !actsOf(i).length).map(i =>
+      + (subOf(DB.items.filter(i => !actsOf(i).length)).length
+          ? '<optgroup label="未挂活动">' + subOf(DB.items.filter(i => !actsOf(i).length)).map(i =>
             '<option value="'+i.id+'"'+(l.itemId===i.id?' selected':'')+'>'+esc(i.name)+'</option>').join('') + '</optgroup>'
           : '');
     return '<div class="lrow" data-side="give" data-idx="'+idx+'">'
@@ -1494,7 +1578,7 @@ function actFormHTML(a){
   const tOpts = ACT_TYPES.map(t => '<option value="'+t+'"'+(a.type===t?' selected':'')+'>'+t+'</option>').join('');
   return '<div class="fieldset">'
   + '<div class="field"><label class="req">活动名称</label><input id="f-name" placeholder="如：10月北京演唱会" value="'+esc(a.name)+'"></div>'
-  + '<div class="field"><label>日期</label><input type="date" id="f-date" value="'+esc(a.date||'')+'" style="text-align:right"></div>'
+  + '<div class="field tap-date" data-date-for="f-date"><label>日期</label><input type="date" id="f-date" value="'+esc(a.date||'')+'" style="text-align:right"></div>'
   + '<div class="field"><label>城市</label><input id="f-city" placeholder="选填" value="'+esc(a.city||'')+'"></div>'
   + '<div class="field"><label>类型</label><select id="f-type">'+tOpts+'</select><span class="sel-arrow">›</span></div>'
   + '<div class="field"><label>场馆</label><input id="f-venue" placeholder="选填" value="'+esc(a.venue||'')+'"></div>'
@@ -1782,7 +1866,19 @@ document.addEventListener('click', async (ev) => {
     return;
   }
   const btn = ev.target.closest('[data-act]');
-  if (!btn) return;
+  if (!btn) {
+    // 日期行：点整行即可唤起原生日期选择器（提升触屏命中率）
+    const dateRow = ev.target.closest('.field.tap-date');
+    if (dateRow){
+      const inp = document.getElementById(dateRow.dataset.dateFor);
+      if (inp){
+        inp.focus();
+        if (typeof inp.showPicker === 'function'){ try { inp.showPicker(); } catch(_){} }
+      }
+      return;
+    }
+    return;
+  }
   const act = btn.dataset.act;
   const id = btn.dataset.id;
 
@@ -1989,6 +2085,21 @@ document.addEventListener('change', (ev) => {
   const t = ev.target;
   const act = t.dataset && t.dataset.act;
   if (!act) return;
+  if (act === 'bump-set'){
+    const it = itemById(t.dataset.id);
+    if (!it){ render(true); return; }
+    const raw = String(t.value).trim();
+    const v = raw === '' ? NaN : Number(raw);
+    if (!isFinite(v) || v < 0){
+      toast('请输入 0 或正整数');
+      render(true);
+      return;
+    }
+    it.madeQty = Math.round(v);
+    if (num(it.planQty) > 0 && it.madeQty >= num(it.planQty) && it.status !== '已完成') it.status = '已完成';
+    save(); render(true);
+    return;
+  }
   if (act === 'line-pick'){
     if (!draft) return;
     draft[t.dataset.side][num(t.dataset.idx)].itemId = t.value;
