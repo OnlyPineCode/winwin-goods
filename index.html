@@ -139,9 +139,12 @@ a{color:var(--blue);text-decoration:none}
   background:var(--card);
   border-top:.5px solid var(--sep);
   box-shadow:0 -6px 20px rgba(0,0,0,.06);
-  transform:translateY(160%);transition:transform .22s cubic-bezier(.32,.72,0,1);
+  transform:translateY(160%);
+  /* 收起态必须彻底不响应点击：仅靠 translateY 会残留一点露在视口底边 */
+  visibility:hidden;pointer-events:none;
+  transition:transform .22s cubic-bezier(.32,.72,0,1),visibility 0s linear .22s;
 }
-.selbar.show{transform:translateY(0)}
+.selbar.show{transform:translateY(0);visibility:visible;pointer-events:auto;transition:transform .22s cubic-bezier(.32,.72,0,1),visibility 0s}
 .selbar .sb-all{
   display:inline-flex;align-items:center;justify-content:center;
   height:40px;padding:0 14px;border-radius:20px;background:var(--fill);
@@ -730,12 +733,24 @@ function syncSelUI(){
 }
 function renderSelBar(){
   let bar = $('#selbar');
-  if (!selOn()){ if (bar) bar.classList.remove('show'); return; }
+  if (!selOn()){
+    // 退出多选：先播完收起动画，结束后彻底隐藏，避免残留的按钮仍可被点到/露出边缘
+    if (bar){
+      bar.classList.remove('show');
+      clearTimeout(bar._hideT);
+      bar._hideT = setTimeout(() => {
+        if (!selOn()){ bar.style.display = 'none'; bar.innerHTML = ''; }
+      }, 240);
+    }
+    return;
+  }
   if (!bar){
     bar = document.createElement('div');
     bar.id = 'selbar'; bar.className = 'selbar';
     document.body.appendChild(bar);
   }
+  clearTimeout(bar._hideT);
+  bar.style.display = 'flex';
   const n = selCount();
   const tot = selVisibleIds().length;
   const allOn = tot > 0 && n >= tot;
@@ -745,7 +760,7 @@ function renderSelBar(){
     +   '<button class="sb-btn sb-set" data-act="sel-status"'+(n ? '' : ' disabled')+'>修改状态</button>'
     +   '<button class="sb-btn sb-del" data-act="sel-del"'+(n ? '' : ' disabled')+'>删除</button>'
     + '</div>';
-  requestAnimationFrame(() => bar.classList.add('show'));
+  requestAnimationFrame(() => { if (selOn()) bar.classList.add('show'); });
 }
 
 let rxTarget = -1;
